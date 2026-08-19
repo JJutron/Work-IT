@@ -1,0 +1,203 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "_meta": {
+    "name": "Work Louder × OpenAI — Codex Micro",
+    "source": "/Users/gimhyeongju/Desktop/화면 기록 2026-07-31 10.55.12.mov",
+    "captured_at": "2026-08-19",
+    "method": "video-frame-extraction-opencv",
+    "confidence": "medium"
+  },
+  "color": {
+    "primary": {
+      "$value": "#000000",
+      "$type": "color",
+      "confidence": "high"
+    },
+    "surface": {
+      "$value": "#FDFDFD",
+      "$type": "color",
+      "confidence": "high"
+    },
+    "surface-elevated": {
+      "$value": "#F3F3F3",
+      "$type": "color",
+      "confidence": "medium"
+    },
+    "text-primary": {
+      "$value": "#000000",
+      "$type": "color",
+      "confidence": "high"
+    },
+    "text-muted": {
+      "$value": "#75777A",
+      "$type": "color",
+      "confidence": "medium"
+    },
+    "text-subtle": {
+      "$value": "#9A8F94",
+      "$type": "color",
+      "confidence": "medium"
+    },
+    "border": {
+      "$value": "#E6E3E5",
+      "$type": "color",
+      "confidence": "medium"
+    },
+    "border-strong": {
+      "$value": "#CDD4DC",
+      "$type": "color",
+      "confidence": "high"
+    },
+    "accent-blue-wash": {
+      "$value": "#AECEF5",
+      "$type": "color",
+      "confidence": "high"
+    },
+    "accent-lavender": {
+      "$value": "#C7C6DB",
+      "$type": "color",
+      "confidence": "high"
+    },
+    "accent-glow": {
+      "$value": "#D9DBE6",
+      "$type": "color",
+      "confidence": "medium"
+    },
+    "button-disabled": {
+      "$value": "#B2BDC7",
+      "$type": "color",
+      "confidence": "medium"
+    },
+    "interactive-highlight": {
+      "$value": "#AECEF5",
+      "$type": "color",
+      "confidence": "medium"
+    }
+  },
+  "typography": {
+    "display-xl": {
+      "$value": {
+        "fontFamily": "Helvetica Now Display, SF Pro Display, Inter, system-ui, sans-serif",
+        "fontSize": "96px",
+        "fontWeight": 900,
+        "letterSpacing": "-0.03em",
+        "lineHeight": 0.95
+      },
+      "$type": "typography",
+      "confidence": "medium"
+    },
+    "display-lg": {
+      "$value": {
+        "fontFamily": "Helvetica Now Display, SF Pro Display, Inter, system-ui, sans-serif",
+        "fontSize": "72px",
+        "fontWeight": 800,
+        "letterSpacing": "-0.025em",
+        "lineHeight": 1.0
+      },
+      "$type": "typography",
+      "confidence": "medium"
+    },
+    "h2": {
+      "$value": {
+        "fontFamily": "Helvetica Now Display, SF Pro Display, Inter, system-ui, sans-serif",
+        "fontSize": "36px",
+        "fontWeight": 700,
+        "letterSpacing": "-0.02em",
+        "lineHeight": 1.2
+      },
+      "$type": "typography",
+      "confidence": "medium"
+    },
+    "body": {
+      "$value": {
+        "fontFamily": "Helvetica Now Text, SF Pro Text, Inter, system-ui, sans-serif",
+        "fontSize": "16px",
+        "fontWeight": 400,
+        "lineHeight": 1.6
+      },
+      "$type": "typography",
+      "confidence": "medium"
+    },
+    "body-sm": {
+      "$value": {
+        "fontFamily": "Helvetica Now Text, SF Pro Text, Inter, system-ui, sans-serif",
+        "fontSize": "14px",
+        "fontWeight": 400,
+        "lineHeight": 1.5
+      },
+      "$type": "typography",
+      "confidence": "medium"
+    },
+    "label-mono": {
+      "$value": {
+        "fontFamily": "SF Mono, ui-monospace, monospace",
+        "fontSize": "13px",
+        "fontWeight": 500,
+        "letterSpacing": "0.02em"
+      },
+      "$type": "typography",
+      "confidence": "high"
+    },
+    "footer-cta": {
+      "$value": {
+        "fontFamily": "Helvetica Now Display, SF Pro Display, Inter, system-ui, sans-serif",
+        "fontSize": "64px",
+        "fontWeight": 800,
+        "letterSpacing": "-0.02em"
+      },
+      "$type": "typography",
+      "confidence": "medium"
+    }
+  },
+  "spacing": {
+    "base": {
+      "$value": "4px",
+      "$type": "dimension",
+      "confidence": "medium"
+    },
+    "section": {
+      "$value": "96px",
+      "$type": "dimension",
+      "confidence": "medium"
+    },
+    "section-lg": {
+      "$value": "128px",
+      "$type": "dimension",
+      "confidence": "medium"
+    }
+  },
+  "borderRadius": {
+    "sm": {
+      "$value": "6px",
+      "$type": "dimension",
+      "confidence": "medium"
+    },
+    "md": {
+      "$value": "12px",
+      "$type": "dimension",
+      "confidence": "medium"
+    },
+    "lg": {
+      "$value": "16px",
+      "$type": "dimension",
+      "confidence": "low"
+    },
+    "pill": {
+      "$value": "9999px",
+      "$type": "dimension",
+      "confidence": "high"
+    }
+  },
+  "shadow": {
+    "product-float": {
+      "$value": "0 20px 60px rgba(77, 76, 82, 0.12)",
+      "$type": "shadow",
+      "confidence": "medium"
+    },
+    "interactive-glow": {
+      "$value": "0 0 0 2px #AECEF5",
+      "$type": "shadow",
+      "confidence": "medium"
+    }
+  }
+}
