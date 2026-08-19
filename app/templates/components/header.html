@@ -1,124 +1,80 @@
-<!-- SANZERO 헤더 -->
-<header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+<!-- SANZERO 헤더 — editorial shell -->
+<header class="bg-surface border-b border-border sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
-            <!-- 로고 및 브랜드 -->
-            <div class="flex items-center">
-                <a href="/" class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M9 12a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H2z" clip-rule="evenodd"></path>
-                        </svg>
-                    </div>
-                    <span class="text-xl font-bold text-gray-900">SANZERO</span>
-                </a>
-            </div>
+            <a href="/" class="flex items-center space-x-3" aria-label="SANZERO 홈">
+                <svg class="w-8 h-8 text-ink" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+                    <path d="M16 3.5 L27 8.2 V16.8 C27 23.1 22.3 28.2 16 29.5 C9.7 28.2 5 23.1 5 16.8 V8.2 Z" stroke="currentColor" stroke-width="1.5"/>
+                    <circle cx="16" cy="16.5" r="5.2" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M14.2 16.5 C14.2 14.9 15.2 14.2 16.6 14.2 C17.9 14.2 18.8 14.8 18.8 15.8 C18.8 16.7 18.1 17.1 16.8 17.4 L15.4 17.8 C13.8 18.2 12.9 18.9 12.9 20.4 C12.9 22.2 14.4 23.3 16.7 23.3 C18.7 23.3 20.1 22.4 20.6 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <span class="text-lg font-bold tracking-tight text-ink">SANZERO</span>
+            </a>
 
-            <!-- 네비게이션 메뉴 (관리자 메뉴 제거됨) -->
+            <nav class="hidden md:flex items-center space-x-8" aria-label="주요 메뉴">
+                <a href="/compensation" class="text-sm font-medium text-muted hover:text-ink transition-colors">보상금 관리</a>
+                <a href="/analysis/precedent" class="text-sm font-medium text-muted hover:text-ink transition-colors">AI 분석</a>
+                <a href="/lawyers/search" class="text-sm font-medium text-muted hover:text-ink transition-colors">노무사 서비스</a>
+            </nav>
 
-            <!-- 사용자 메뉴 -->
             <div class="flex items-center space-x-4">
-                <!-- 알림 버튼 -->
-                <button class="relative p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-full">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5-5V9a6 6 0 10-12 0v3l-5 5h5m7 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                    </svg>
-                    <!-- 알림 배지 -->
-                    <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
-                </button>
-
-                <!-- 사용자 프로필 드롭다운 -->
+                {% if current_user %}
                 <div class="relative">
-                    <!-- 로그인된 사용자 -->
-                    {% if current_user %}
-                    <button id="user-menu-button" onclick="toggleUserDropdown()" class="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-                        <div class="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                            <span class="text-primary-600 font-medium">
-                                {{ current_user.username[0].upper() }}
-                            </span>
+                    <button id="user-menu-button" onclick="toggleUserDropdown()" class="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
+                        <div class="w-8 h-8 bg-ink text-surface rounded-full flex items-center justify-center">
+                            <span class="font-medium text-xs">{{ current_user.username[0].upper() }}</span>
                         </div>
-                        <span class="hidden md:block text-gray-700 font-medium">{{ current_user.username }}</span>
-                        <svg class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <span class="hidden md:block text-ink font-medium">{{ current_user.username }}</span>
+                        <svg class="w-4 h-4 text-muted" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                             <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
                         </svg>
                     </button>
-
-                    <!-- 드롭다운 메뉴 -->
-                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 ring-1 ring-black ring-opacity-5">
-
-                        <a href="/auth/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                                </svg>
-                                <span>프로필 관리</span>
-                            </div>
-                        </a>
-
-                        <hr class="my-1">
-                        <button onclick="handleLogout(event)"
-                                class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            <div class="flex items-center space-x-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-                                </svg>
-                                <span>로그아웃</span>
-                            </div>
-                        </button>
+                    <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-surface rounded-lg border border-border py-1 z-50">
+                        <a href="/auth/profile" class="block px-4 py-2 text-sm text-ink hover:bg-gray-50">프로필 관리</a>
+                        <hr class="my-1 border-border">
+                        <button onclick="handleLogout(event)" class="block w-full text-left px-4 py-2 text-sm text-ink hover:bg-gray-50">로그아웃</button>
                     </div>
-
-                    {% else %}
-                    <!-- 로그인되지 않은 사용자 -->
-                    <div class="flex items-center space-x-4">
-                        <a href="/auth/login" class="text-gray-700 hover:text-primary-600 font-medium">
-                            로그인
-                        </a>
-                        <a href="/auth/signup" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 font-medium transition-colors">
-                            회원가입
-                        </a>
-                    </div>
-                    {% endif %}
                 </div>
+                {% else %}
+                <a href="/auth/login" class="text-sm font-medium text-muted hover:text-ink">로그인</a>
+                <a href="/auth/signup" class="bg-ink text-surface px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">회원가입</a>
+                {% endif %}
 
-                <!-- 모바일 메뉴 버튼 -->
-                <button class="md:hidden p-2 text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 rounded-md"
-                        @click="mobileMenuOpen = !mobileMenuOpen">
+                <button type="button" class="md:hidden p-2 text-muted hover:text-ink rounded-md"
+                        @click="mobileMenuOpen = !mobileMenuOpen"
+                        :aria-expanded="mobileMenuOpen.toString()"
+                        aria-controls="mobile-menu"
+                        aria-label="메뉴 열기">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7h16M4 12h16M4 17h16"></path>
                     </svg>
                 </button>
             </div>
         </div>
 
-        <!-- 모바일 메뉴 (관리자 메뉴 제거됨) -->
+        <nav id="mobile-menu" class="md:hidden border-t border-border py-3 space-y-1" x-show="mobileMenuOpen" x-cloak>
+            <a href="/compensation" class="block px-2 py-2 text-sm text-ink">보상금 관리</a>
+            <a href="/analysis/precedent" class="block px-2 py-2 text-sm text-ink">AI 분석</a>
+            <a href="/lawyers/search" class="block px-2 py-2 text-sm text-ink">노무사 서비스</a>
+        </nav>
     </div>
 </header>
 
-<!-- 드롭다운 JavaScript -->
 <script>
     function toggleUserDropdown() {
         const dropdown = document.getElementById('user-dropdown');
         dropdown.classList.toggle('hidden');
     }
 
-    // 드롭다운 닫기 함수
     function closeUserDropdown() {
         const dropdown = document.getElementById('user-dropdown');
-        if (dropdown) {
-            dropdown.classList.add('hidden');
-        }
+        if (dropdown) dropdown.classList.add('hidden');
     }
 
-    // 로그아웃 처리
     function handleLogout(event) {
         event.preventDefault();
-
-        // 확인 다이얼로그
         if (confirm('정말 로그아웃 하시겠습니까?')) {
-            // 드롭다운 닫기
             closeUserDropdown();
-
-            // 로그아웃 요청
             fetch('/auth/logout', {
                 method: 'POST',
                 headers: {
@@ -128,28 +84,20 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // 로그아웃 성공 시 로그인 페이지로 리다이렉트
                     window.location.href = '/auth/login';
                 } else {
                     alert('로그아웃 중 오류가 발생했습니다.');
                 }
             })
-            .catch(error => {
-                console.error('Logout error:', error);
-                alert('로그아웃 중 오류가 발생했습니다.');
-            });
+            .catch(() => alert('로그아웃 중 오류가 발생했습니다.'));
         }
     }
 
-    // 드롭다운 외부 클릭 시 닫기
     document.addEventListener('click', function(event) {
         const dropdown = document.getElementById('user-dropdown');
         const button = document.getElementById('user-menu-button');
-
         if (dropdown && button && !button.contains(event.target) && !dropdown.contains(event.target)) {
             dropdown.classList.add('hidden');
         }
     });
-
-    // getCookie 함수는 base.html에서 정의됨
 </script>
