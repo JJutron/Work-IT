@@ -214,5 +214,16 @@ docker compose up --build -d
 
 ---
 
-*문서 최종 업데이트: 2025-11-13*
-*테스트 환경: SANZERO v1.0 Production Ready*
+*문서 최종 업데이트: 2026-08-19*
+*테스트 환경: SANZERO v1.0 + editorial home shell*
+
+## 2026-08-19 Editorial 홈 셸
+
+- [ ] `/` 히어로: 비로그인 카피 / 로그인 시 `{username}` 인사
+- [ ] `[01]–[04]` 카드 링크: `/compensation`, `/analysis/precedent`, `/lawyers/search`, `/analysis/disability`
+- [ ] 헤더 네비 3개 + 모바일 햄버거
+- [ ] 비로그인: 로그인 텍스트 + 회원가입 ink pill
+- [ ] 로그인: 드롭다운 프로필/로그아웃 (CSRF 유지)
+- [ ] 푸터 giant CTA → `/compensation`
+- [ ] 배경 `#FDFDFD`, 컬러 fill 서비스 카드 없음
+- [ ] 44px 터치: 회원가입 pill, 햄버거

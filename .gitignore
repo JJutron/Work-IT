@@ -84,9 +84,7 @@ coverage.xml
 *.joblib
 *.model
 
-# 임시 파일들
-*.tmp
-*.temp
-temp/
-tmp/
-cookies.txt
+# 임시 AnyDesign 캡처 (브랜드킷 PNG는 커밋)
+.anydesign-capture/frame_*.png
+.anydesign-capture/*.mov.png
+.anydesign-capture/css-vars.json

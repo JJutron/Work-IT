@@ -1,47 +1,35 @@
 # SANZERO 디자인 문서
 
-### 디자인 가이드라인
-- 반응형 완벽 지원 (puppeteer MCP 로 반응형 디자인도 문제가 없는지 확인)
-- https://tx.shadcn.com/ 스타일로 전체 웹페이지에 일관된 디자인 적용
+## 브랜드 방향
+- **모드**: Light Editorial / Compliance (공공형 신뢰 + 에디토리얼 타이포)
+- **태그라인**: 정당한 보상, 처음부터.
+- **마크**: 방패 안의 원(Zero)과 S 스트로크 — 산재 Zero + 보호
+- **보드**: [`.anydesign-capture/sanzero-brandkit.png`](.anydesign-capture/sanzero-brandkit.png)
 
-## XML 디자인 파일 개요
+## 토큰
+| Token | Value | Role |
+|---|---|---|
+| `ink` | `#191817` | 본문·CTA fill |
+| `surface` | `#FDFDFD` | 페이지 배경 |
+| `muted` | `#6e6a64` | 보조 텍스트 |
+| `border` | `#CDD4DC` | hairline |
+| `accent` | `#2563EB` | 링크·포커스 1곳 |
+| `status.pending` | `#9cd5fe` | 대기 |
+| `status.review` | `#f077af` | 심사 |
+| `status.approved` | `#10B981` | 승인 |
+| `status.action` | `#F59E0B` | 보완 요청 |
 
-- SANZERO 서비스의 모든 페이지 구조를 XML 형식으로 정의합니다.
-- 각 XML 파일은 페이지의 구조와 요소를 명확하게 표현하여 구현 시 참조할 수 있도록 합니다.
+- 폰트: Pretendard
+- Display: `clamp(2.5rem, 5vw, 4.5rem)` / weight 800 / tracking `-0.02em`
+- CTA: 컬러 버튼 4종 금지. 홈은 ink pill 또는 텍스트 링크 `→`
+- 카드: 그림자 없음, `border-border rounded-xl`
 
 ## XML 파일 목록
 
 ### 1. 공통 컴포넌트
-- **@header.xml**: 공통 헤더 (SANZERO 네비게이션, 사용자 메뉴)
-- **@footer.xml**: 공통 푸터
+- **@header.xml**: editorial 헤더 (마크, 네비, 인증)
+- **@footer.xml**: giant CTA + 긴급연락 한 줄
+- **@dashboard.xml**: 히어로 + `[01]–[04]` 그리드 + 상태 점 리스트
 
-### 2. 메인 대시보드
-- **@dashboard.xml**: SANZERO 메인 대시보드
-
-### 3. 산재 보상 서비스
-- **@compensation-apply.xml**: 보상금 신청 페이지
-- **@compensation-status.xml**: 신청 현황 조회 페이지
-- **@compensation-calculate.xml**: 보상금 계산 페이지
-
-### 4. AI 분석 서비스
-- **@analysis-main.xml**: AI 분석 메인 페이지
-- **@analysis-precedent.xml**: 판례 분석 페이지
-- **@analysis-disability.xml**: AI 장해등급 예측 페이지 (준비 중)
-
-### 5. 노무사 서비스
-- **@lawyers-search.xml**: 노무사 검색/매칭 페이지
-- **@lawyers-profile.xml**: 노무사 프로필 페이지
-- **@lawyers-booking.xml**: 상담 예약 페이지
-
-### 6. 인증 및 사용자 관리
-- **@auth-login.xml**: 로그인 페이지
-- **@auth-signup.xml**: 회원가입 페이지
-- **@auth-profile.xml**: 프로필 관리 페이지
-
-### 7. 관리자
-- **@admin-dashboard.xml**: 관리자 대시보드
-- **@admin-users.xml**: 사용자 관리 페이지
-- **@admin-applications.xml**: 보상금 승인/거부 페이지
-
-
-
+### 2–7. 그 외 화면
+로그인·신청·분석·노무사·관리자는 기존 와이어프레임을 유지하며, 셸 토큰만 상속합니다. (후속 이슈)

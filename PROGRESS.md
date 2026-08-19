@@ -247,6 +247,18 @@ _상세한 기술 스택 정보는 @CLAUDE.md 참조_
 
 ---
 
-*문서 최종 업데이트: 2025-11-27*
+*문서 최종 업데이트: 2026-08-19*
 *총 개발 기간: 2025-09-30 ~ 2025-11-13*
 *코드 품질: Production Ready*
+
+## 2026-08-18 기억할 사항
+- 로컬 폴더명은 `WORKIT`. 원본 remote `SANZERO-Ajou/SANZERO1`은 origin에 남아 있음.
+- 포트폴리오 README 표기만 WORKIT. 앱 타이틀·컨테이너·백엔드 코드의 SANZERO는 변경하지 않음.
+
+## 2026-08-19 기억할 사항
+- P0+P1 프론트 셸만 에디토리얼 재구현: `base.html` 토큰, `header.html`, `footer.html`, `dashboard.html`.
+- 브랜드킷: `.anydesign-capture/sanzero-brandkit.png` (Light Editorial, 방패+Zero).
+- 토큰: ink `#191817`, surface `#FDFDFD`, muted `#6e6a64`, border `#CDD4DC`, accent `#2563EB`.
+- 컬러 fill 버튼 4종 제거. 홈 CTA는 ink pill 또는 `→` 텍스트 링크.
+- 로그인·신청·분석·노무사 페이지는 아직 구 스타일. 후속 이슈로 토큰 상속.
+- 포트폴리오 원격: `https://github.com/JJutron/Work-IT.git` (`portfolio` remote).
