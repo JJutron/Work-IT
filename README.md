@@ -167,13 +167,3 @@ POST | `/analysis/api/predict-grade` | 장해등급 예측 | 세션
 GET | `/lawyers/api/search` | 노무사 검색 | 세션
 
 요청과 응답 상세는 개발 환경 API 문서와 [ARCHITECTURE.md](ARCHITECTURE.md)를 참고하세요.
-
-
-## Team
-SKALA / AI 융합 캡스톤 디자인 프로젝트 저장소입니다.
-
-김형주 — 서비스 기획 및 구현
-
-
-## License
-이 저장소는 교육·캡스톤 디자인 프로젝트를 위해 제작되었습니다.
