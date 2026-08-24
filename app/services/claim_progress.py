@@ -174,9 +174,10 @@ def derive_claim_progress(
 
 
 async def get_claim_progress_for_user(user_id: Optional[str]) -> Dict[str, Any]:
-    """로그인 사용자면 분석·신청 이력을 읽어 진행 현황을 만든다."""
+    """로그인 사용자면 계산 스냅샷·분석·신청 이력을 읽어 진행 현황을 만든다."""
     analyses: List[Dict[str, Any]] = []
     applications: List[Dict[str, Any]] = []
+    has_calculation = False
     if user_id:
         try:
             from app.services.analysis_service import analysis_service
@@ -188,11 +189,18 @@ async def get_claim_progress_for_user(user_id: Optional[str]) -> Dict[str, Any]:
             analyses = await analysis_service.get_user_analysis_history(
                 user_id, limit=20
             )
+            draft = await CompensationService.get_claim_draft(user_id)
+            has_calculation = bool(draft)
         except Exception as exc:
             logger.warning("claim progress lookup failed: %s", exc)
             analyses, applications = [], []
+            has_calculation = False
 
-    return derive_claim_progress(analyses=analyses, applications=applications)
+    return derive_claim_progress(
+        has_calculation=has_calculation,
+        analyses=analyses,
+        applications=applications,
+    )
 
 
 def serialize_home_user(current_user: Optional[Dict[str, Any]]) -> Optional[Dict[str, str]]:

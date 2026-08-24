@@ -19,6 +19,10 @@ from app.services.compensation_calculator_service import (
     SaturdayWorkType,
     CompensationStandards
 )
+from app.services.claim_progress import (
+    decorate_application,
+    get_claim_progress_for_user,
+)
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/templates")
@@ -30,11 +34,13 @@ async def compensation_main(
     request: Request,
     current_user: Dict[str, Any] = Depends(require_auth)
 ):
-    """보상금 서비스 - 바로 계산기로 리다이렉트"""
-    return RedirectResponse(
-        url="/compensation/calculator",
-        status_code=301  # 영구 리다이렉트
-    )
+    """보상금 서비스 메인"""
+    csrf_token = request.cookies.get("csrf_token") or SecurityManager.generate_csrf_token()
+    return templates.TemplateResponse("pages/compensation/main.html", {
+        "request": request,
+        "current_user": current_user,
+        "csrf_token": csrf_token,
+    })
 
 
 @router.get("/calculator", response_class=HTMLResponse)
@@ -43,7 +49,7 @@ async def compensation_calculator(
     current_user: Dict[str, Any] = Depends(require_auth)
 ):
     """보상금 계산기 페이지"""
-    csrf_token = SecurityManager.generate_csrf_token()
+    csrf_token = request.cookies.get("csrf_token") or SecurityManager.generate_csrf_token()
 
     return templates.TemplateResponse("pages/compensation/calculator.html", {
         "request": request,
@@ -54,7 +60,8 @@ async def compensation_calculator(
             "max_daily": CompensationStandards.MAX_DAILY_AMOUNT,
             "min_wage_daily": CompensationStandards.MIN_WAGE_DAILY,
             "year": 2025
-        }
+        },
+        "claim_step": 1,
     })
 
 
@@ -63,11 +70,12 @@ async def compensation_calculate_page(
     request: Request,
     current_user: Dict[str, Any] = Depends(require_auth)
 ):
-    """보상금 계산 페이지 (계산기 페이지로 리다이렉트)"""
-    return RedirectResponse(
-        url="/compensation/calculator",
-        status_code=301  # 영구 리다이렉트
-    )
+    """보상금 계산 페이지 (계산기로 이동. 예측 등급 쿼리는 유지)"""
+    qs = request.url.query
+    url = "/compensation/calculator"
+    if qs:
+        url = f"{url}?{qs}"
+    return RedirectResponse(url=url, status_code=302)
 
 
 @router.post("/calculate")
@@ -161,6 +169,20 @@ async def calculate_compensation(
             }
         }
 
+        try:
+            await CompensationService.save_claim_draft(
+                current_user["user_id"],
+                {
+                    "calculation_date": calculation_date,
+                    "injury_type": injury_type,
+                    "disability_grade": disability_grade,
+                    "daily_wage": daily_wage,
+                    "calculated_at": result["calculation_metadata"]["calculated_at"],
+                },
+            )
+        except Exception as draft_error:
+            logger.warning("claim draft save skipped: %s", draft_error)
+
         # HTMX 요청인지 확인
         accept_header = request.headers.get("accept", "")
         hx_request = request.headers.get("hx-request", "")
@@ -175,6 +197,8 @@ async def calculate_compensation(
             # JSON 응답
             return JSONResponse(content=result)
 
+    except HTTPException:
+        raise
     except ValueError as ve:
         return JSONResponse(
             status_code=400,
@@ -191,25 +215,113 @@ async def calculate_compensation(
 @router.get("/apply", response_class=HTMLResponse)
 async def application_form(
     request: Request,
+    q: Optional[str] = Query(None),
+    query: Optional[str] = Query(None),
+    injury_type: Optional[str] = Query(None),
+    incident_date: Optional[str] = Query(None),
+    analysis_id: Optional[str] = Query(None),
     current_user: Dict[str, Any] = Depends(require_auth)
 ):
-    """보상금 신청 - 계산기 페이지로 리다이렉트"""
-    return RedirectResponse(
-        url="/compensation/calculator",
-        status_code=301  # 영구 리다이렉트
-    )
+    """보상금 신청 폼"""
+    csrf_token = request.cookies.get("csrf_token") or SecurityManager.generate_csrf_token()
+    description = (q or query or "").strip()
+    form_data = None
+    if description or injury_type or incident_date:
+        form_data = {
+            "incident_description": description,
+            "injury_type": injury_type or "",
+            "incident_date": incident_date or "",
+        }
+    return templates.TemplateResponse("pages/compensation/apply.html", {
+        "request": request,
+        "current_user": current_user,
+        "csrf_token": csrf_token,
+        "today": date.today().isoformat(),
+        "form_data": form_data,
+        "error_message": None,
+        "analysis_id": analysis_id,
+        "claim_step": 4,
+    })
 
 
 @router.post("/apply")
 async def create_application_form(
     request: Request,
-    current_user: Dict[str, Any] = Depends(require_auth)
+    current_user: Dict[str, Any] = Depends(require_auth),
+    csrf_token: str = Form(""),
+    incident_date: str = Form(...),
+    incident_location: str = Form(...),
+    incident_description: str = Form(...),
+    injury_type: str = Form(...),
+    severity_level: str = Form("moderate"),
+    hospital_name: str = Form(""),
+    diagnosis: str = Form(""),
+    treatment_period: str = Form(""),
+    medical_cost: str = Form(""),
+    company_name: str = Form(""),
+    position: str = Form(""),
+    employment_type: str = Form(""),
+    work_start_date: str = Form(""),
+    base_salary: str = Form(""),
+    monthly_bonus: str = Form(""),
+    annual_salary: str = Form(""),
 ):
-    """보상금 신청 - 계산기 페이지로 리다이렉트"""
-    return RedirectResponse(
-        url="/compensation/calculator",
-        status_code=303
+    """보상금 신청 제출"""
+    cookie_csrf = request.cookies.get("csrf_token")
+    if cookie_csrf and csrf_token and not SecurityManager.verify_csrf_token(request, csrf_token):
+        raise HTTPException(status_code=403, detail="보안 토큰 검증 실패")
+
+    def _to_int(value: str) -> int:
+        try:
+            return int(str(value).replace(",", "").strip() or 0)
+        except ValueError:
+            return 0
+
+    incident_data = {
+        "incident_date": incident_date,
+        "incident_location": incident_location,
+        "incident_description": incident_description,
+        "injury_type": injury_type,
+        "severity_level": severity_level,
+        "medical_records": {
+            "hospital": hospital_name,
+            "diagnosis": diagnosis,
+            "treatment_period": treatment_period,
+            "medical_cost": _to_int(medical_cost),
+        },
+        "employment_info": {
+            "company": company_name,
+            "position": position,
+            "employment_type": employment_type,
+            "work_start_date": work_start_date or None,
+        },
+        "salary_info": {
+            "base_salary": _to_int(base_salary),
+            "monthly_bonus": _to_int(monthly_bonus),
+            "annual_salary": _to_int(annual_salary),
+        },
+    }
+
+    created = await CompensationService.create_application(
+        current_user.get("user_id") or current_user.get("id"),
+        incident_data,
     )
+    if not created:
+        csrf = request.cookies.get("csrf_token") or SecurityManager.generate_csrf_token()
+        return templates.TemplateResponse(
+            "pages/compensation/apply.html",
+            {
+                "request": request,
+                "current_user": current_user,
+                "csrf_token": csrf,
+                "today": date.today().isoformat(),
+                "form_data": incident_data,
+                "error_message": "신청서 저장에 실패했습니다. 입력값을 확인한 뒤 다시 시도해주세요.",
+            },
+            status_code=400,
+        )
+
+    return RedirectResponse(url="/compensation/status", status_code=303)
 
 
 @router.get("/status", response_class=HTMLResponse)
@@ -218,7 +330,7 @@ async def application_status(
     status: str = Query("all", pattern="^(all|pending|approved|rejected|reviewing)$"),
     current_user: Dict[str, Any] = Depends(require_auth)
 ):
-    """신청 현황 조회 페이지"""
+    """보상 진행 현황: 계산→분석→판례→신청 위치와 제출된 신청서 심사 상태."""
     try:
         # 상태 필터 처리
         status_filter = None if status == "all" else status
@@ -230,11 +342,18 @@ async def application_status(
             limit=50
         )
 
+        claim_progress = await get_claim_progress_for_user(
+            current_user.get("user_id") or current_user.get("id")
+        )
+        decorated = [decorate_application(row) for row in applications]
+
         return templates.TemplateResponse("pages/compensation/status.html", {
             "request": request,
             "current_user": current_user,
-            "applications": applications,
-            "current_status": status
+            "applications": decorated,
+            "current_status": status,
+            "claim_progress": claim_progress,
+            "claim_step": claim_progress["current_step"],
         })
 
     except Exception as e:

@@ -155,8 +155,8 @@ class CompensationService:
         """
         try:
             query = supabase.table("compensation_applications").select(
-                "id, incident_date, incident_location, injury_type, severity_level, "
-                "estimated_amount, approved_amount, status, created_at, updated_at"
+                "id, incident_date, incident_location, incident_description, injury_type, "
+                "severity_level, estimated_amount, approved_amount, status, created_at, updated_at"
             ).eq("user_id", user_id).eq("is_active", True)
 
             if status_filter:
@@ -573,3 +573,43 @@ class CompensationService:
                 "rejected_count": 0,
                 "reviewing_count": 0
             }
+
+    @staticmethod
+    async def save_claim_draft(user_id: str, payload: Dict[str, Any]) -> bool:
+        """사용자당 최신 계산 스냅샷 1건을 저장한다."""
+        if not user_id or supabase is None:
+            return False
+        try:
+            row = {
+                "user_id": user_id,
+                "payload": payload,
+                "updated_at": datetime.now(timezone.utc).isoformat(),
+            }
+            result = supabase.table("claim_drafts").upsert(
+                row, on_conflict="user_id"
+            ).execute()
+            return bool(result.data)
+        except Exception as exc:
+            logger.warning("claim draft save failed: %s", exc)
+            return False
+
+    @staticmethod
+    async def get_claim_draft(user_id: str) -> Optional[Dict[str, Any]]:
+        """저장된 계산 스냅샷을 읽는다. 없으면 None."""
+        if not user_id or supabase is None:
+            return None
+        try:
+            result = (
+                supabase.table("claim_drafts")
+                .select("payload")
+                .eq("user_id", user_id)
+                .limit(1)
+                .execute()
+            )
+            if not result.data:
+                return None
+            payload = result.data[0].get("payload")
+            return payload if isinstance(payload, dict) else None
+        except Exception as exc:
+            logger.warning("claim draft lookup failed: %s", exc)
+            return None

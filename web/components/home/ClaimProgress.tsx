@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect } from "react";
 import type { CSSProperties } from "react";
 import type { ClaimProgressData, ClaimStep } from "@/lib/types";
 
@@ -14,129 +11,9 @@ function stepHint(progress: ClaimProgressData, step: ClaimStep): { hint: string;
   return { hint: "대기", stamped: false };
 }
 
-function paintDone(card: Element) {
-  card.setAttribute("data-done", "true");
-  card.setAttribute("data-current", "false");
-  card.removeAttribute("aria-current");
-  const dot = card.querySelector(".station-dot");
-  if (dot) {
-    dot.classList.add("is-done");
-    dot.classList.remove("is-current");
-  }
-  const label = card.querySelector(".claim-step-label");
-  const hint = card.querySelector(".claim-step-hint");
-  if (label) {
-    label.classList.remove("text-muted", "text-accent", "font-semibold");
-    label.classList.add("font-medium", "text-ink");
-  }
-  if (hint) {
-    hint.className = "claim-step-hint mt-1 block text-xs text-muted";
-    hint.textContent = "완료";
-  }
-}
-
-function paintCurrent(card: Element) {
-  card.setAttribute("data-current", "true");
-  card.setAttribute("aria-current", "step");
-  const dot = card.querySelector(".station-dot");
-  if (dot) {
-    dot.classList.add("is-current", "is-done");
-  }
-  const label = card.querySelector(".claim-step-label");
-  const hint = card.querySelector(".claim-step-hint");
-  if (label) {
-    label.classList.remove("text-muted");
-    label.classList.add("font-semibold", "text-accent");
-  }
-  if (hint) {
-    hint.className = "claim-step-hint is-now";
-    hint.textContent = "지금 여기";
-  }
-}
-
 export default function ClaimProgress({ progress }: { progress: ClaimProgressData }) {
   const steps = progress.steps;
   const hideContinue = progress.state === "start" || progress.state === "submitted";
-
-  useEffect(() => {
-    const root = document.getElementById("home-claim-progress");
-    if (!root || root.getAttribute("data-state") === "submitted") return;
-
-    let draft: { q?: string; date?: string; injury?: string; disability_grade?: string } = {};
-    try {
-      draft = JSON.parse(sessionStorage.getItem("sanzero_claim") || "{}") as typeof draft;
-    } catch {
-      return;
-    }
-    const hasCalc = Boolean(draft.q || draft.date || draft.injury);
-    const hasGrade = Boolean(draft.disability_grade);
-    if (!hasCalc && !hasGrade) return;
-
-    const paintRail = (after: string) => {
-      root.querySelectorAll(`[data-rail-after="${after}"]`).forEach((rail) => {
-        rail.classList.remove("bg-[#CDD4DC]");
-        rail.classList.add("bg-accent");
-      });
-    };
-    const setCopy = (summary: string, count: string, href: string, continueLabel: string, footerLabel: string) => {
-      const countEl = document.getElementById("home-claim-progress-count");
-      if (countEl) countEl.textContent = count;
-      const summaryEl = document.getElementById("home-claim-progress-summary");
-      if (summaryEl) summaryEl.textContent = summary;
-      const footerCopy = document.getElementById("home-footer-copy");
-      if (footerCopy) footerCopy.textContent = summary;
-      const wrap = document.getElementById("home-claim-progress-continue-wrap");
-      const cont = document.getElementById("home-claim-progress-continue");
-      if (wrap) wrap.classList.remove("hidden");
-      if (cont) {
-        cont.setAttribute("href", href);
-        cont.textContent = continueLabel;
-      }
-      const footer = document.getElementById("home-footer-cta");
-      if (footer) {
-        footer.setAttribute("href", href);
-        footer.textContent = footerLabel;
-      }
-    };
-
-    if (hasCalc || hasGrade) {
-      root.querySelectorAll('[data-step="1"]').forEach(paintDone);
-      paintRail("1");
-    }
-    if (hasGrade) {
-      root.querySelectorAll('[data-step="2"]').forEach(paintDone);
-      paintRail("2");
-    }
-
-    const current = Number(root.getAttribute("data-current") || "1");
-    if (hasGrade && current <= 2) {
-      root.querySelectorAll('[data-step="3"]').forEach(paintCurrent);
-      root.setAttribute("data-current", "3");
-      root.setAttribute("data-completed", "2");
-      root.style.setProperty("--docket-fill", "66%");
-      setCopy(
-        "예상 장해등급을 확인했습니다. 비슷한 사고의 판례를 찾아보세요.",
-        "2/4 완료",
-        "/analysis/precedent",
-        "비슷한 판례 찾아보기 →",
-        "비슷한 판례 찾아보기",
-      );
-      return;
-    }
-    if (hasCalc && current === 1) {
-      root.querySelectorAll('[data-step="2"]').forEach(paintCurrent);
-      root.setAttribute("data-current", "2");
-      root.setAttribute("data-completed", "1");
-      root.style.setProperty("--docket-fill", "33%");
-      setCopy(
-        "예상 보상금을 계산했습니다. 이제 예상 장해등급을 확인하세요.",
-        "1/4 완료",
-        "/analysis/disability",
-        "장해등급 예측하기 →",
-        "장해등급 예측하기",
-      );
-    }
-  }, []);
 
   return (
     <section className="relative z-20 -mt-14 sm:-mt-16 mb-4 sm:mb-6" aria-labelledby="progress-heading">
