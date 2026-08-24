@@ -174,9 +174,25 @@ docker compose up --build -d
 
 - 서비스: [http://localhost](http://localhost)
 - FastAPI 직접(Jinja 홈 폴백): [http://localhost:8000](http://localhost:8000)
-- Next 직접: [http://localhost:3000](http://localhost:3000)
+- Nuxt 직접: [http://localhost:3000](http://localhost:3000)
 
 헬스 체크: `GET /health`
+
+
+## 주요 API
+
+Method | Endpoint | 설명 | 인증
+--- | --- | --- | ---
+GET | `/api/home` | 홈 SSR JSON (`user`, `claim_progress`) | 쿠키 선택
+POST | `/auth/api/login` | 로그인 | -
+POST | `/compensation/apply` | 보상 신청 | 세션
+POST | `/compensation/calculate` | 보상금 계산 | 세션
+POST | `/analysis/api/precedent/simple` | 판례 RAG 검색 (화면) | 세션
+POST | `/analysis/api/precedent/search` | 판례 검색 JSON | 세션
+POST | `/analysis/api/predict-grade` | 장해등급 예측 | 세션
+GET | `/lawyers/api/search` | 노무사 검색 | 세션
+
+요청과 응답 상세는 개발 환경 API 문서와 [ARCHITECTURE.md](ARCHITECTURE.md)를 참고하세요.
 
 
 ## Team
