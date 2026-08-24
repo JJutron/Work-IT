@@ -18,7 +18,7 @@ WORKIT은 산업재해 보상 신청, 유사 판례 분석, 장해등급 예측,
 장해등급 판단이 불명확함 | 정확 문구 매칭, BERT 유사도, DNN을 잇는 3단계 예측 제공
 노무사 탐색이 번거로움 | 전문분야·지역 검색과 상담 예약까지 한 화면에서 연결
 
-이 저장소는 FastAPI SSR 프론트엔드(Jinja2, HTMX)와 보상·분석·노무사 API를 함께 관리합니다. 인증·데이터베이스·파일 저장은 Supabase를 **서버 측에서만** 호출하며, 브라우저에는 Supabase JS SDK와 키를 포함하지 않습니다.
+이 저장소는 **홈 `/`만** Next.js(App Router)이고, 계산·분석·신청·로그인은 FastAPI SSR(Jinja2, HTMX)입니다. 인증·데이터베이스·파일 저장은 Supabase를 **서버 측에서만** 호출하며, 브라우저에는 Supabase JS SDK와 키를 포함하지 않습니다.
 
 
 ## 핵심 기능
@@ -82,9 +82,10 @@ Supabase 영속화 · LLM / 임베딩 / 예측 모델
 
 ## 기술 스택
 
-**Frontend (SSR)**
+**Frontend**
 
-Jinja2 · Tailwind CSS 3.4 · HTMX
+홈 `/`: Next.js App Router (`web/`) · TypeScript · Tailwind 토큰
+실무 화면: Jinja2 · Tailwind CSS 3.4 · HTMX
 
 **Backend**
 
@@ -115,6 +116,7 @@ WORKIT/
 │   ├── static/                 # CSS·JS
 │   ├── ml_models/              # 장해등급 예측 데이터
 │   └── utils/                  # 보안, DB, 설정
+├── web/                        # Next.js 홈 (`/`만)
 ├── wireframes/                 # 화면 XML 와이어프레임
 ├── scripts/
 ├── docker-compose.yml
@@ -148,8 +150,9 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-- 서비스: [http://localhost](http://localhost) (Nginx)
-- FastAPI 직접 접속: [http://localhost:8000](http://localhost:8000)
+- 서비스: [http://localhost](http://localhost) (Nginx, 홈은 Next.js)
+- FastAPI 직접 접속(Jinja 홈 폴백): [http://localhost:8000](http://localhost:8000)
+- Next 직접 접속: [http://localhost:3000](http://localhost:3000)
 - API 문서: [http://localhost:8000/docs](http://localhost:8000/docs) (`ENVIRONMENT=development`일 때)
 
 헬스 체크: `GET /health`
@@ -159,10 +162,12 @@ docker compose up --build -d
 
 Method | Endpoint | 설명 | 인증
 --- | --- | --- | ---
+GET | `/api/home` | 홈 SSR JSON (`user`, `claim_progress`) | 쿠키 선택
 POST | `/auth/api/login` | 로그인 | -
 POST | `/compensation/apply` | 보상 신청 | 세션
 POST | `/compensation/calculate` | 보상금 계산 | 세션
-POST | `/analysis/api/precedent/search` | 판례 검색 | 세션
+POST | `/analysis/api/precedent/simple` | 판례 RAG 검색 (화면) | 세션
+POST | `/analysis/api/precedent/search` | 판례 검색 JSON | 세션
 POST | `/analysis/api/predict-grade` | 장해등급 예측 | 세션
 GET | `/lawyers/api/search` | 노무사 검색 | 세션
 

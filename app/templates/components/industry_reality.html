@@ -1,0 +1,602 @@
+<style>
+    .industry-reality { overflow: hidden; }
+    .industry-photo-hero {
+        position: relative;
+        min-height: clamp(30rem, 58vw, 42rem);
+        overflow: hidden;
+        background: #191817;
+    }
+    .industry-photo-hero-image {
+        position: absolute;
+        inset: -3%;
+        width: 106%;
+        height: 106%;
+        object-fit: cover;
+        object-position: center 48%;
+    }
+    .industry-photo-hero-scrim {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(90deg, rgba(14, 13, 12, 0.9) 0%, rgba(14, 13, 12, 0.67) 48%, rgba(14, 13, 12, 0.2) 100%),
+            linear-gradient(0deg, rgba(14, 13, 12, 0.55) 0%, transparent 45%);
+    }
+    .industry-photo-hero-content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        min-height: clamp(30rem, 58vw, 42rem);
+        flex-direction: column;
+        justify-content: center;
+        gap: 1.5rem;
+        color: #FDFDFD;
+    }
+    .industry-photo-hero-content h2 {
+        max-width: 14ch;
+        color: #FDFDFD;
+        text-wrap: balance;
+    }
+    .industry-photo-hero-content p { color: rgba(253, 253, 253, 0.82); }
+    .industry-photo-credit {
+        position: absolute;
+        right: 2rem;
+        bottom: 1.5rem;
+        color: rgba(253, 253, 253, 0.72);
+        font-size: 0.68rem;
+        text-decoration: underline;
+        text-decoration-color: rgba(253, 253, 253, 0.35);
+        text-underline-offset: 3px;
+    }
+    .industry-photo-credit:hover,
+    .industry-photo-credit:focus-visible { color: #FDFDFD; text-decoration-color: #FDFDFD; }
+    .industry-story { margin-top: 4rem; border-top: 1px solid #CDD4DC; }
+    .industry-scene {
+        display: grid;
+        gap: 2.5rem;
+        padding-block: 4.5rem;
+        border-bottom: 1px solid #CDD4DC;
+    }
+    .industry-scene-copy { max-width: 34rem; }
+    .industry-scene-copy h3,
+    .industry-average-copy h3 {
+        color: #191817;
+        font-size: clamp(1.75rem, 3.1vw, 3rem);
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.18;
+        text-wrap: pretty;
+    }
+    .industry-stat-nowrap {
+        display: inline-block;
+        white-space: nowrap;
+    }
+    .industry-scene-copy p,
+    .industry-average-copy p {
+        max-width: 39rem;
+        margin-top: 1.25rem;
+        color: #6E6A64;
+        font-size: 1rem;
+        line-height: 1.75;
+    }
+    .industry-days-figure,
+    .industry-ledger,
+    .industry-average-figure { margin: 0; }
+    .industry-days-figure,
+    .industry-ledger { align-self: end; }
+    .industry-days-summary {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #191817;
+    }
+    .industry-days-summary strong {
+        color: #191817;
+        font-size: clamp(1.35rem, 2.2vw, 2rem);
+        letter-spacing: -0.025em;
+    }
+    .industry-days-summary > span {
+        color: #6E6A64;
+        font-family: ui-monospace, monospace;
+        font-size: 0.75rem;
+        letter-spacing: 0.04em;
+    }
+    .industry-people-chart {
+        padding-block: 1.25rem 1.5rem;
+    }
+    .industry-people-key {
+        margin-bottom: 1rem;
+        color: #6E6A64;
+        font-family: ui-monospace, monospace;
+        font-size: 0.8125rem;
+        letter-spacing: 0.02em;
+    }
+    .industry-people-field {
+        display: grid;
+        max-width: 30rem;
+        grid-template-columns: repeat(13, minmax(0, 1fr));
+        gap: 0.6rem 0.65rem;
+    }
+    .industry-people-field > span {
+        display: flex;
+        min-width: 0;
+        align-items: center;
+        justify-content: center;
+        color: #191817;
+        opacity: 0;
+        transform-origin: center bottom;
+    }
+    .is-inview .industry-people-field > span {
+        animation: industry-person-in 320ms cubic-bezier(0.23, 1, 0.32, 1) both;
+        animation-delay: calc(var(--i, 0) * 22ms);
+    }
+    @keyframes industry-person-in {
+        from { opacity: 0; transform: translateY(6px) scale(0.42); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .industry-people-field svg {
+        width: clamp(1.15rem, 2vw, 1.45rem);
+        height: auto;
+        overflow: visible;
+        fill: none;
+        stroke: currentColor;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 1.6;
+    }
+    .industry-days-figure figcaption,
+    .industry-ledger figcaption,
+    .industry-average-figure figcaption {
+        color: #6E6A64;
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+    .industry-ledger { border-top: 1px solid #191817; }
+    .industry-ledger dl { margin: 0; }
+    .industry-ledger dl > div {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1.25rem;
+        padding-block: 1rem;
+        border-bottom: 1px solid #CDD4DC;
+    }
+    .industry-ledger dt { color: #6E6A64; font-size: 0.9375rem; }
+    .industry-ledger dd {
+        margin: 0;
+        color: #191817;
+        font-size: clamp(1.25rem, 2.4vw, 2rem);
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        text-align: right;
+    }
+    .industry-payout-compare { display: grid; gap: 0.8rem; padding-block: 1.5rem; }
+    .industry-payout-compare > div {
+        display: grid;
+        grid-template-columns: 3.5rem minmax(0, 1fr) auto;
+        gap: 0.75rem;
+        align-items: center;
+        color: #6E6A64;
+        font-family: ui-monospace, monospace;
+        font-size: 0.75rem;
+    }
+    .industry-payout-compare i {
+        display: block;
+        height: 9px;
+        background: #191817;
+        transform: scaleX(0);
+        transform-origin: left center;
+    }
+    .is-inview .industry-payout-compare i {
+        animation: industry-bar-fill 780ms cubic-bezier(0.23, 1, 0.32, 1) both;
+    }
+    .is-inview .industry-payout-compare > div:nth-child(2) i { animation-delay: 90ms; }
+    @keyframes industry-bar-fill {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+    }
+    .industry-payout-compare strong { color: #191817; font-size: clamp(0.875rem, 1.3vw, 1rem); font-weight: 700; }
+    .industry-photo-interlude {
+        position: relative;
+        height: clamp(24rem, 48vw, 36rem);
+        margin: 5rem 0 0;
+        overflow: hidden;
+        background: #191817;
+    }
+    .industry-photo-interlude img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center 28%;
+    }
+    .industry-photo-interlude-scrim {
+        position: absolute;
+        inset: 0;
+        background:
+            linear-gradient(0deg, rgba(14, 13, 12, 0.86) 0%, rgba(14, 13, 12, 0.14) 72%),
+            linear-gradient(90deg, rgba(14, 13, 12, 0.38) 0%, transparent 70%);
+    }
+    .industry-photo-interlude blockquote {
+        position: absolute;
+        left: clamp(1.5rem, 4vw, 3.5rem);
+        bottom: clamp(2.5rem, 6vw, 4.5rem);
+        max-width: 18ch;
+        margin: 0;
+        color: #FDFDFD;
+        font-size: clamp(1.8rem, 4.2vw, 3.75rem);
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.12;
+        text-wrap: balance;
+    }
+    .industry-photo-interlude > a {
+        position: absolute;
+        right: 1.5rem;
+        bottom: 1.25rem;
+        color: rgba(253, 253, 253, 0.7);
+        font-size: 0.68rem;
+        text-decoration: underline;
+        text-decoration-color: rgba(253, 253, 253, 0.35);
+        text-underline-offset: 3px;
+    }
+    .industry-photo-interlude > a:hover,
+    .industry-photo-interlude > a:focus-visible { color: #FDFDFD; text-decoration-color: #FDFDFD; }
+    .industry-average-scene { padding-block: 5.5rem; }
+    .industry-average-copy { max-width: 55rem; }
+    .industry-average-figure { margin-top: 3.5rem; }
+    .industry-equation {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1.25fr);
+        align-items: stretch;
+        border-block: 1px solid #191817;
+    }
+    .industry-equation > span {
+        display: flex;
+        min-width: 0;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.55rem;
+        padding: 1.5rem 1.25rem;
+    }
+    .industry-equation small { color: #6E6A64; font-size: 0.875rem; line-height: 1.35; }
+    .industry-equation strong {
+        color: #191817;
+        font-size: clamp(1.125rem, 2.2vw, 1.75rem);
+        letter-spacing: -0.025em;
+        white-space: nowrap;
+    }
+    .industry-equation > b {
+        display: flex;
+        align-items: center;
+        color: #6E6A64;
+        font-size: clamp(1.25rem, 2vw, 1.5rem);
+        font-weight: 400;
+    }
+    .industry-equation .industry-equation-result { background: #191817; }
+    .industry-equation-result small,
+    .industry-equation-result strong { color: #FDFDFD; }
+    .industry-average-figure figcaption { margin-top: 0.8rem; }
+    .industry-factors {
+        display: grid;
+        margin-top: 3rem;
+        border: 1px solid #CDD4DC;
+        background: #FDFDFD;
+    }
+    .industry-factors > div {
+        display: grid;
+        gap: 0.45rem;
+        padding: 1.25rem;
+        border-bottom: 1px solid #CDD4DC;
+    }
+    .industry-factors > div:last-child { border-bottom: 0; }
+    .industry-factors strong { color: #191817; font-size: 1rem; }
+    .industry-factors span { color: #6E6A64; font-size: 0.9375rem; line-height: 1.6; }
+    .industry-bridge {
+        margin-top: 2.5rem;
+        color: #6E6A64;
+        font-size: clamp(1.1rem, 2vw, 1.35rem);
+        line-height: 1.65;
+    }
+    .industry-bridge strong { color: #191817; }
+    .industry-sources {
+        display: grid;
+        gap: 0.75rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #CDD4DC;
+        color: #6E6A64;
+        font-size: 0.8125rem;
+        line-height: 1.6;
+    }
+    .industry-sources ul { display: flex; flex-wrap: wrap; gap: 0.5rem 1.25rem; }
+    .industry-sources a {
+        color: #191817;
+        text-decoration: underline;
+        text-decoration-color: #CDD4DC;
+        text-underline-offset: 3px;
+    }
+    .industry-sources a:hover,
+    .industry-sources a:focus-visible { text-decoration-color: #191817; }
+    @media (min-width: 640px) {
+        .industry-factors { grid-template-columns: repeat(3, 1fr); }
+        .industry-factors > div { border-right: 1px solid #CDD4DC; border-bottom: 0; }
+        .industry-factors > div:last-child { border-right: 0; }
+    }
+    @media (min-width: 768px) {
+        .industry-scene {
+            grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+            gap: 5rem;
+            align-items: end;
+        }
+        .industry-scene-reverse .industry-scene-copy { grid-column: 2; }
+        .industry-scene-reverse .industry-ledger { grid-column: 1; grid-row: 1; }
+        .industry-sources {
+            grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr);
+            align-items: start;
+        }
+    }
+    @media (max-width: 639px) {
+        .industry-photo-hero-scrim {
+            background: linear-gradient(0deg, rgba(14, 13, 12, 0.88) 0%, rgba(14, 13, 12, 0.42) 78%, rgba(14, 13, 12, 0.18) 100%);
+        }
+        .industry-photo-hero-image { object-position: 58% center; }
+        .industry-photo-hero-content {
+            justify-content: flex-end;
+            padding-block: 5rem 5.5rem;
+        }
+        .industry-photo-credit { right: 1rem; bottom: 1rem; }
+        .industry-photo-interlude img { object-position: center 24%; }
+        .industry-equation { grid-template-columns: 1fr; }
+        .industry-equation > b {
+            justify-content: center;
+            min-height: 2.5rem;
+            border-block: 1px solid #CDD4DC;
+        }
+        .industry-equation > span { align-items: center; padding-block: 1.75rem; text-align: center; }
+        .industry-days-summary { align-items: flex-start; flex-direction: column; gap: 0.4rem; }
+        .industry-people-field { gap: 0.5rem 0.4rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .industry-people-field > span,
+        .industry-payout-compare i {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+    }
+</style>
+
+<section id="industry-reality"
+         class="industry-reality border-y border-border bg-paper"
+         aria-labelledby="industry-reality-heading">
+    <div class="industry-photo-hero">
+        <img src="/static/home/industry-worker-factory.jpg"
+             alt="안전모를 쓰고 산업 현장에서 작업 중인 근로자"
+             class="industry-photo-hero-image"
+             loading="lazy"
+             decoding="async">
+        <div class="industry-photo-hero-scrim" aria-hidden="true"></div>
+        <div class="industry-photo-hero-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 id="industry-reality-heading"
+                class="text-3xl md:text-[48px] font-extrabold tracking-tight leading-[1.08]">
+                산업재해 보상의 현실,<br>숫자로 살펴봅니다.
+            </h2>
+            <p class="text-[17px] leading-relaxed max-w-xl">
+                산재로 인정받는 사람은 늘고, 산재보험은 수십만 명의 치료와 생계를 지원하고 있습니다.
+                공개된 최신 확정 자료인 2024년 통계를 기준으로 살펴봅니다.
+            </p>
+            <a class="industry-photo-credit"
+               href="https://www.pexels.com/photo/man-in-apron-working-at-factory-19544210/"
+               target="_blank" rel="noreferrer">
+                사진 Hoang NC · Pexels <span aria-hidden="true">↗</span>
+                <span class="sr-only"> (새 창)</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28">
+        <div class="industry-story">
+            <article class="industry-scene">
+                <div class="industry-scene-copy">
+                    <h3>2024년 한 해, <span class="industry-stat-nowrap"><span class="tabular-nums" data-count="142771">142,771</span>명이</span> 산재로 인정받았습니다.</h3>
+                    <p>
+                        전년보다 5,975명, 4.4% 늘어난 수치입니다. 사고 발생일이 아니라
+                        근로복지공단의 산재보상 승인일을 기준으로 집계했습니다.
+                    </p>
+                </div>
+                <figure class="industry-days-figure">
+                    <div class="industry-days-summary">
+                        <strong>하루 평균 약 <span class="tabular-nums" data-count="390">390</span>명</strong>
+                        <span>2024년 366일 기준</span>
+                    </div>
+                    <div class="industry-people-chart">
+                        <p class="industry-people-key">사람 모양 1개 ≈ 10명</p>
+                        <div class="industry-people-field" aria-hidden="true">
+                            {% for unit in range(0, 39) %}
+                            <span style="--i: {{ unit }}">
+                                <svg viewBox="0 0 20 22" focusable="false">
+                                    <circle cx="10" cy="5" r="3"></circle>
+                                    <path d="M4.5 19v-4.5c0-3 2.45-5.5 5.5-5.5s5.5 2.5 5.5 5.5V19"></path>
+                                </svg>
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <figcaption>
+                        2024년 재해자 142,771명을 윤년 366일로 나눈 단순 평균입니다.
+                    </figcaption>
+                </figure>
+            </article>
+
+            <article class="industry-scene industry-scene-reverse">
+                <div class="industry-scene-copy">
+                    <h3><span class="industry-stat-nowrap"><span class="tabular-nums" data-count="405539">405,539</span>명이</span><br>산재보험 급여를 받았습니다.</h3>
+                    <p>
+                        산재보험은 치료비뿐 아니라 쉬는 동안의 생계비, 장해급여와 유족급여도 지원합니다.
+                        회복 단계와 상황에 따라 여러 종류의 급여를 받을 수 있습니다.
+                    </p>
+                </div>
+                <figure class="industry-ledger">
+                    <dl>
+                        <div>
+                            <dt>산재보험 수급자</dt>
+                            <dd class="tabular-nums" data-count="405539" data-suffix="명">405,539명</dd>
+                        </div>
+                        <div>
+                            <dt>연간 보험급여</dt>
+                            <dd class="tabular-nums" data-count="76333" data-format="eok">7조 6,333억 원</dd>
+                        </div>
+                    </dl>
+                    <div class="industry-payout-compare" aria-label="2023년과 2024년 산재보험 지급액 비교">
+                        <div>
+                            <span>2023</span>
+                            <i style="width: 95.4%;" aria-hidden="true"></i>
+                            <strong>7조 2,849억</strong>
+                        </div>
+                        <div>
+                            <span>2024</span>
+                            <i style="width: 100%;" aria-hidden="true"></i>
+                            <strong>7조 6,333억</strong>
+                        </div>
+                    </div>
+                    <figcaption>2024년도 산재보험 사업연보 기준. 수급자와 지급액 모두 연간 합계입니다.</figcaption>
+                </figure>
+            </article>
+
+            <figure class="industry-photo-interlude">
+                <img src="/static/home/industry-worker-warehouse.jpg"
+                     alt="창고에서 안전모를 내려놓고 앉아 쉬는 산업현장 근로자"
+                     loading="lazy"
+                     decoding="async">
+                <div class="industry-photo-interlude-scrim" aria-hidden="true"></div>
+                <blockquote>
+                    이 숫자 뒤에는<br>
+                    다시 일상으로 돌아가야 할 사람이 있습니다.
+                </blockquote>
+            </figure>
+
+            <article class="industry-average-scene">
+                <div class="industry-average-copy">
+                    <h3>
+                        1인당 단순 평균은 약 <span class="industry-stat-nowrap tabular-nums" data-count="1882" data-format="man">1,882만 원</span>입니다.<br>
+                        내가 받을 보상금은 이 금액과 다릅니다.
+                    </h3>
+                    <p>
+                        전체 보험급여를 수급자 수로 나눈 제도 전체의 단순 평균입니다.
+                        실제 지급액은 평균임금, 치료기간, 장해등급 등에 따라 달라집니다.
+                    </p>
+                </div>
+                <figure class="industry-average-figure">
+                    <div class="industry-equation" aria-label="총 지급액을 수급자 수로 나눈 단순 평균">
+                        <span>
+                            <small>총 지급액</small>
+                            <strong class="tabular-nums" data-count="76333" data-format="eok">7조 6,333억 원</strong>
+                        </span>
+                        <b aria-hidden="true">÷</b>
+                        <span>
+                            <small>수급자</small>
+                            <strong class="tabular-nums" data-count="405539" data-suffix="명">405,539명</strong>
+                        </span>
+                        <b aria-hidden="true">=</b>
+                        <span class="industry-equation-result">
+                            <small>단순 평균</small>
+                            <strong class="tabular-nums" data-count="1882" data-format="man" data-prefix="약 ">약 1,882만 원</strong>
+                        </span>
+                    </div>
+                    <figcaption>개인별 지급액을 예측하는 데 사용할 수 없는 참고 통계입니다.</figcaption>
+                </figure>
+                <div class="industry-factors" aria-label="개인 보상액을 결정하는 주요 조건">
+                    <div>
+                        <strong>평균임금</strong>
+                        <span>사고 전 임금을 기준으로 계산합니다.</span>
+                    </div>
+                    <div>
+                        <strong>휴업기간</strong>
+                        <span>치료로 일하지 못한 기간을 반영합니다.</span>
+                    </div>
+                    <div>
+                        <strong>장해등급</strong>
+                        <span>치료 후 남은 장해 정도를 반영합니다.</span>
+                    </div>
+                </div>
+                <p class="industry-bridge">
+                    평균이 아니라, <strong>내 조건으로 계산한 예상 보상금</strong>부터 확인하세요.
+                </p>
+            </article>
+        </div>
+
+        <footer class="industry-sources">
+            <p>집계 기준: 2024년 · 근로복지공단 산재보상 승인일 기준</p>
+            <ul>
+                <li>
+                    <a href="https://www.moel.go.kr/policy/policydata/view.do?bbs_seq=20250402181"
+                       target="_blank" rel="noreferrer">
+                        고용노동부, 2024년 산업재해 현황 <span aria-hidden="true">↗</span>
+                        <span class="sr-only"> (새 창)</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="https://www.moel.go.kr/info/publict/publictDataView.do?bbs_seq=20251000326"
+                       target="_blank" rel="noreferrer">
+                        고용노동부, 2024년도 산재보험 사업연보 <span aria-hidden="true">↗</span>
+                        <span class="sr-only"> (새 창)</span>
+                    </a>
+                </li>
+            </ul>
+        </footer>
+    </div>
+</section>
+<script>
+(function () {
+    var section = document.getElementById("industry-reality");
+    if (!section || section.dataset.motionBound) return;
+    section.dataset.motionBound = "1";
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function formatCount(el, value) {
+        var format = el.getAttribute("data-format");
+        var suffix = el.getAttribute("data-suffix") || "";
+        var prefix = el.getAttribute("data-prefix") || "";
+        if (format === "eok") {
+            var jo = Math.floor(value / 10000);
+            var eok = value % 10000;
+            return prefix + jo + "조 " + eok.toLocaleString("ko-KR") + "억 원";
+        }
+        if (format === "man") {
+            return prefix + value.toLocaleString("ko-KR") + "만 원";
+        }
+        return prefix + value.toLocaleString("ko-KR") + suffix;
+    }
+
+    function animateCount(el) {
+        var target = Number(el.getAttribute("data-count"));
+        if (!target) return;
+        if (reduce) {
+            el.textContent = formatCount(el, target);
+            return;
+        }
+        var start = performance.now();
+        var duration = 1050;
+        function tick(now) {
+            var t = Math.min(1, (now - start) / duration);
+            var eased = 1 - Math.pow(1 - t, 5);
+            el.textContent = formatCount(el, Math.round(target * eased));
+            if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+    }
+
+    var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("is-inview");
+            entry.target.querySelectorAll("[data-count]").forEach(animateCount);
+            observer.unobserve(entry.target);
+        });
+    }, { threshold: 0.28 });
+
+    section.querySelectorAll(".industry-people-chart, .industry-payout-compare, .industry-scene-copy, .industry-ledger, .industry-average-copy, .industry-equation").forEach(function (node) {
+        observer.observe(node);
+    });
+})();
+</script>

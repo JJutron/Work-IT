@@ -3,7 +3,7 @@
 ## 프로젝트 개요
 - **프로젝트명**: SANZERO
 - **설명**: AI 기반 산업재해 보상 서비스 플랫폼
-- **기술 스택**: Python 3.13, FastAPI, Supabase, HTMX, Tailwind CSS
+- **기술 스택**: Python 3.13, FastAPI, Next.js 홈(`/`), Jinja2 실무, Supabase, HTMX, Tailwind CSS
 - **현재 상태**: 🎯 **100% 완성** - 모든 핵심 기능 구현 완료, 관리자 시스템 간소화
 
 ## 📊 시스템 구현 현황
@@ -252,7 +252,7 @@ _상세한 기술 스택 정보는 @CLAUDE.md 참조_
 *코드 품질: Production Ready*
 
 ## 2026-08-18 기억할 사항
-- 로컬 폴더명은 `WORKIT`. 원본 remote `SANZERO-Ajou/SANZERO1`은 origin에 남아 있음.
+- 로컬 폴더명은 `WORKIT`.
 - 포트폴리오 README 표기만 WORKIT. 앱 타이틀·컨테이너·백엔드 코드의 SANZERO는 변경하지 않음.
 
 ## 2026-08-19 기억할 사항
@@ -260,5 +260,46 @@ _상세한 기술 스택 정보는 @CLAUDE.md 참조_
 - 브랜드킷: `.anydesign-capture/sanzero-brandkit.png` (Light Editorial, 방패+Zero).
 - 토큰: ink `#191817`, surface `#FDFDFD`, muted `#6e6a64`, border `#CDD4DC`, accent `#2563EB`.
 - 컬러 fill 버튼 4종 제거. 홈 CTA는 ink pill 또는 `→` 텍스트 링크.
-- 로그인·신청·분석·노무사 페이지는 아직 구 스타일. 후속 이슈로 토큰 상속.
-- 포트폴리오 원격: `https://github.com/JJutron/Work-IT.git` (`portfolio` remote).
+- 로그인·신청·분석·노무사·관리자 페이지에 동일 토큰 상속 적용. 폼 action·필드명은 변경하지 않음.
+- 장해등급 페이지의 `body` 리셋 CSS와 컬러 그라데이션 CTA를 제거해 셸이 깨지지 않게 함.
+- 보상 메인·판례·노무사·프로필 헤더를 홈과 같은 `[0n]` 에디토리얼 패턴으로 맞춤.
+- Git remote `origin`은 `https://github.com/JJutron/Work-IT.git`만 사용. `SANZERO-Ajou/SANZERO1`은 더 이상 쓰지 않음. 기본 브랜치는 `develop`.
+- 실제 계정·신청·판례 데이터는 복구 불가. 스키마는 `init_database.sql`로 새 Supabase에 재생성 가능.
+- 판례 LLM은 NVIDIA NIM 단일 경로. `NVIDIA_API_KEY` + OpenAI SDK(`base_url=https://integrate.api.nvidia.com/v1`). 기본 모델 `meta/llama-3.3-70b-instruct`.
+- 새 DB 시드: `scripts/create_test_users.py`. 로그인 `workit.user@ajou.ac.kr` / `workit.lawyer@ajou.ac.kr` / 관리자 기존 ajou 메일. `DEMO_AUTH=false`.
+- 실행 점검(2026-08-19): 계산기 CSRF 불일치→403이 500으로 숨겨짐. `/compensation/apply`가 계산기로 301. 장해등급 joblib은 `scripts/build_integrated_bundle.py`, 판례 pkl은 DB 3건으로 `scripts/build_searcher_model.py`. 원본 2.7만 건 pkl·Stage-2 `sanzero_2stage_kproto.joblib`·`nomusa_dummy_data.json`은 재학습/원본 파일 없이는 복원 불가.
+- 판례 화면은 TF-IDF pkl이 아니라 README와 같은 SBERT+pgvector RAG. `POST /analysis/api/precedent/simple` → `analysis_service.search_similar_precedents`. 상세는 UUID면 `precedents` 테이블.
+- 기존 Supabase는 `scripts/add_precedent_pgvector.sql` 실행 후 `scripts/generate_embeddings.py`. 법제처 수집만 하고 임베딩을 안 넣으면 벡터 검색이 비어 TF-IDF로만 보조됨.
+- 실무 화면(판례·장해·계산기·관리자)을 홈과 같은 Light Editorial로 맞춤. 왼쪽 컬러 보더·그라데이션 CTA·이모지 버튼·side-tab·파란 워시(`bg-blue-50`) 제거. 실무 히어로는 `text-page`+`[0n]`. 모션은 200ms·`sz-motion`·reduced-motion.
+  - 홈 히어로 3D는 Sketchfab 원본 메시·normal을 남기고, albedo 침수 얼룩은 들어내며 RM은 균일 honed steel로 편다. `scripts/colorize_shield_glb.py`. 조명은 HDR `environment-image` + skybox 없음 + commerce 톤맵. `pytest test_colorize_shield_glb.py` PASS.
+  - 홈: 「정당한 보상, 처음부터.」 + 히어로 CTA **산업재해 보상 받아보기**(항상 계산기) + 그림자 없는 3D 방패 + **접수 대장** 타임라인 + **Why SANZERO** 3열(과정 01–04 그리드 아님) + 하단 바.
+  - 홈 `/`만 Next.js (`web/`). Nginx `location = /`·`/_next/` → `:3000`. 실무 화면은 FastAPI. `GET /api/home`에 쿠키 포워드. Jinja `GET /`는 `:8000` 폴백.
+  - 계산 결과(`calculation_result.html`)와 계산기 4단계 다음 액션도 「AI 분석하기」로 유도.
+  - 헤더 내비: 보상금 계산기 / 보상 진행 현황 / AI 분석. 노무사는 최후 수단이라 헤더에서 빼고 푸터 「전문가 상담」만 둠. 신청 후 심사는 현황 페이지·스텝퍼에서 보고, 히어로는 계산부터 다시 유도.
+  - 판례: 좌 서브내비 + KPI + 결과 테이블. 가짜 브랜드 메뉴(Shieldex 등)는 넣지 않고 RAG 결과만 매핑.
+  - 장해 결과는 `disability_results_simple.html`(실제 렌더 템플릿). 입력 폼도 같은 셸.
+  - 계산기: 좌 01–04 스텝퍼. 필드명은 기존 `calculation_date`·`wage_amount` 등 유지. `hx-post="/compensation/calculate"`.
+- 보상 플로우: 계산 → AI 분석 → 판례 확인 → 신청서. 상단 `claim_flow` 스텝퍼. 간단 검색 저장 시 `Prefer: return=minimal` 때문에 빈 `data`를 실패로 보던 판정을 고침. numpy 스칼라는 JSON 안전 변환 후 insert.
+- 2026-08-19 유리 판례 0건: Test_casePedia 기준은 유리 O/불리 X/애매 △인데, 저장 라벨을 `유리`·`미분류`로 바꿔 결과 화면이 `유리 O`를 못 세고 0이 됐다. 판결결과 가중 + 결론 30% 키워드 점수로 되돌리고, 유리도 = 유리 O / 전체 검색 건수.
+- 2026-08-19 홈·헤더 「보상 진행 현황」이 예전 심사 트랙(신청 접수 / AI 분석 중 / 검토 대기 / 지급 완료, 가짜 날짜 2024.04.01)이라 계산→분석→판례→신청 플로우와 어긋났다. 홈과 `/compensation/status`를 같은 4단계 연결 스텝퍼로 맞추고, 제출 후 심사는 pending/reviewing/approved/rejected/completed 배지로만 표시. 홈 히어로는 항상 「산업재해 보상 받아보기」→계산기. `pytest test_claim_progress.py` PASS.
+
+## 2026-08-20 기억할 사항
+- 홈 `/`만 Next.js App Router (`web/`). Nginx `=` `/`와 `/_next/`만 Next `:3000`. 계산기·판례·신청·로그인은 FastAPI+Jinja.
+- Next SSR은 `FASTAPI_INTERNAL_URL`(로컬 `http://localhost:8000`, 컨테이너 `http://web:8000`)로 `GET /api/home`을 호출하고 브라우저 쿠키를 그대로 넘긴다. `:3000`으로 직접 열면 Next rewrite가 `/static`·`/api`를 FastAPI로 넘긴다. 브라우저에 Supabase 키 없음.
+- 홈 모션은 transform·opacity만. SVG 원 `r` 트랜지션은 레이아웃이라 쓰지 않고 scale. 카드 그림자 리프트 금지. `prefers-reduced-motion`이면 CSS `sz-enter`와 Framer 이동을 끈다. 히어로는 JS 하이드레이션 전에도 CSS로 입장해야 카피가 숨지 않는다.
+- 소개 섹션은 가운데 제목 **내 조건으로 받을 금액부터 확인하세요.** 아래 기능 챕터 3개(지그재그: 4:3 실화면 루프 + 배지 + 기능 3줄 + 텍스트 링크). 캡처는 `scripts/capture_feature_stages.mjs` → `app/static/home/feature-*.{webp,gif,jpg}`. Why 3열 그리드 없음. 하단 「한 장의 양식」도해는 진행 현황·챕터와 중복이라 제거. 과정 번호 01–04는 진행 현황·계산기에만. 현재 단계는 「지금 여기」+점 점멸. Jinja `dashboard.html`도 같은 카피로 폴백.
+- 홈 UX 카피는 모호한 「봅니다/채웁니다/애매하면」을 계산·확인·작성·상담처럼 결과가 분명한 동사로 교체했다. 검색 대상은 `판례`, 개별 사건의 결론은 `판결`로 구분하고 Next·Jinja·진행 상태 API 문구를 함께 유지한다.
+- Docker 빌드/재시작은 사용자가 실행. `docker compose up --build -d` 후 `/`가 Next인지 확인.
+- 보상 플로우는 계산 → 장해등급 예측 → 판례 → 신청서. 장해등급은 장해급여 입력(계산기 `disability_grade`)을 채우려고 만든 단계다. 예전처럼 history를 정거장으로 두지 않는다. 계산 다음 CTA는 `/analysis/disability`. 예측 결과는 `analysis_requests`(type=`disability_prediction`)에 저장되고, 결과 화면은 판례가 주 액션·「이 등급으로 다시 계산하기」가 보조. 장해가 없으면 판례로 건너뛸 수 있다. `GET /compensation/calculate`는 쿼리 유지 302.
+- 장해등급 예측·판례 검색 대기는 `SanzeroWaitRing` 프로그레스 링. 진행률은 화면용 가라 값. CSS는 `base.html` `.sz-wait`, 스크립트는 `/static/js/wait-ring.js`.
+- 히어로 CTA는 ink(`#191817`) 큰 도장 버튼 + `sz-stamp` 링. `#2563EB`는 링크·진행 현황 현재 단계만. 문구·href는 불변.
+- 서비스가 뭔지는 헤더 로고 옆 「산업재해 보상 서비스」로만 알린다. 히어로 eyebrow 「SANZERO · 산재 보상」은 두지 않는다.
+- 진행 현황과 기능 챕터 사이에 `IndustryReality` 실황 스크롤을 둔다. 최신 확정 보상 통계는 2024년 고용노동부 자료(재해자 142,771명, 수급자 405,539명, 보험급여 7조 6,333억 원)이며 Next와 Jinja 폴백을 함께 유지한다.
+- 1인당 약 1,882만 원은 총 지급액÷수급자 수의 단순 평균일 뿐 개인 예상액이 아니다. 평균임금·휴업기간·장해등급 안내와 공식 출처를 항상 함께 표시한다. 통계는 새 사업연보 발간 시 수동 갱신한다.
+- `Reveal`은 `.reveal-motion` 클래스를 가지며 reduced-motion에서 인라인 opacity·transform을 해제한다. 화면 밖 본문도 스크롤 전에 숨지 않는다.
+- 산업재해 실황 도입은 Pexels `industry-worker-factory.jpg`(Hoang NC), 중간 전환은 제공 사진 `industry-worker-warehouse.jpg`를 로컬 저장해 사용한다. 도입은 미세한 스크롤 이동, 사람 단위·지급액 막대·평균 산식은 transform·opacity 진입이며 도입 사진에만 출처 링크를 표시한다.
+- 실황 핵심 수치는 `ScrollCount`(Next)와 `data-count`(Jinja)로 화면 진입 시 카운트업한다. 사람 모양 39개와 지급액 막대는 Framer가 아니라 CSS `is-inview` 애니메이션으로 채운다. 막대 채움은 780ms, 사람 아이콘은 22ms stagger. reduced-motion이면 최종 상태를 즉시 표시한다.
+- 실황 수치 가독성을 보강했다. `.industry-days-summary > span`으로 중첩 카운트 숫자의 11.2px 축소 버그를 막고, 차트 값·산식·설명·출처를 12–28px 역할 스케일로 정리했다. 색상은 warm paper·ink·muted·steel과 현장 사진의 안전모 주황 조합을 유지한다.
+- 히어로에서 3D GLB를 뺐다. 유광 크롬·그리드·마크 캡션이 밤티로 읽혀, 헤더와 같은 방패 SVG를 증명서 프레임으로 키우고 카피를 그 안 가운데에 둔다. `model-viewer` CDN은 홈에서 제거. GLB 파일은 static에 유지.
+- 히어로 모션은 방패 윤곽이 위에서 아래로 좌우 함께 드러나고, 제목은 opacity 입장. 프레임 안 Zero+S 도장은 「혹시,」와 겹쳐서 제거. 리드는 문장 단위로 줄바꿈하고 `word-break: keep-all`. `prefers-reduced-motion`이면 정지. 헤더 로그인은 CTA와 같은 sharp.
+- 히어로 방패는 닫힌 한 패스다. 좌·우로 쪼개 그리면 꼭대기·밑점에서 선 끝이 겹치거나 벌어진다. 윤곽 등장은 clip-path로 위에서 아래로 드러내고, 꼭대기·밑점은 miter로 붙인다.

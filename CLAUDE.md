@@ -4,15 +4,19 @@
 - **서비스명**: SANZERO - AI 기반 산업재해 보상 서비스 플랫폼
 
 ## 기술 스택
-- **백엔드 & SSR 프론트**
+- **하이브리드 프론트 (1단계)**
+  - **홈 `/`만** Next.js App Router (`web/`, TypeScript). 모션은 CSS `sz-enter` + Framer Motion, `prefers-reduced-motion` 필수
+  - 계산기·판례·신청·로그인은 FastAPI + **Jinja2** + HTMX
+  - Nginx: `location = /`·`/_next/` → Next `:3000`, 나머지 → FastAPI `:8000`
+  - Jinja `GET /`는 Next 장애 시 `:8000` 폴백
+- **백엔드**
   - Python 3.13 + FastAPI
-  - 템플릿: **Jinja2**
-  - UI: Tailwind CSS 3.4 + **HTMX**(전체 페이지 HTMX 갱신)
+  - UI: Tailwind CSS 3.4 (토큰은 DESIGN.md와 동일)
 - **인증·DB·파일 저장**: **Supabase**
   - Auth·Storage·SQL은 Supabase API를 *서버 측(FastAPI)* 에서만 호출
   - **브라우저에는 Supabase JS SDK·키를 포함하지 않음**
-- **배포**: 도커컴포즈 (uvicorn 기반 실행 FastAPI 도커, nginx 도커로 구성)
-  - FastAPI에서 정적 파일 직접 서빙
+- **배포**: 도커컴포즈 (FastAPI + Next 홈 + nginx)
+  - FastAPI에서 정적 파일(GLB 등) 직접 서빙. Next `public`에 복사하지 않음
   - 단순 구조 지향 (개발/운영 환경 분리 없음)
 
 ## AI/ML 기술 스택
@@ -29,7 +33,7 @@
   - MLflow: 모델 버전 관리 및 실험 추적 (차후 구현 예정)
   - Jupyter Notebook: ML 개발 환경 (차후 구현 예정)
 - **LLM API 연동**
-  - OpenAI API / Anthropic Claude API: 판례 분석
+  - NVIDIA NIM (`integrate.api.nvidia.com`): 판례 분석·요약
   - 프롬프트 엔지니어링: 산재 특화 분석
 
 ## 📚 관련 문서
@@ -80,7 +84,7 @@
 1. **산재 보상 신청/관리**: 보상금 계산, CRUD 기능, 상태 추적, 관리자 승인/거부
 2. **노무사 서비스**: AI 기반 매칭, 검색/필터링, 상담 예약, 평점 시스템
 3. **AI 판례 분석**: RAG 기반 유사 판례 검색, LLM 분석, 사안 유불리 분석
-4. **장해등급 예측**: AI 모델 기반 자동 예측 (준비 중)
+4. **장해등급 예측**: 계산 다음 단계. 장해급여 입력을 채우고 판례로 이어감
 5. **사용자 관리**: Supabase Auth, 권한 기반 접근 제어, 프로필 관리
 6. **관리자 시스템**: 사용자 관리, 데이터 대시보드, 시스템 모니터링
 7. **보안 시스템**: CSRF/XSS 방어, 데이터 암호화, 접근 로그 추적
@@ -92,9 +96,10 @@ SUPABASE_URL=https://ityipqwjounyjkbvzgqu.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 SUPABASE_ANON_KEY=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
 
-# LLM API 키
-OPENAI_API_KEY=sk-...
-ANTHROPIC_API_KEY=sk-ant-...
+# LLM API 키 (NVIDIA NIM)
+NVIDIA_API_KEY=nvapi-...
+NVIDIA_BASE_URL=https://integrate.api.nvidia.com/v1
+NVIDIA_MODEL=meta/llama-3.3-70b-instruct
 
 # 보안 설정
 SECRET_KEY=your-secret-key-here
@@ -117,7 +122,7 @@ LOG_LEVEL=INFO
 ## 초기 데이터 셋업
 - **Supabase 프로젝트**: ityipqwjounyjkbvzgqu (PostgreSQL + pgvector)
 - **초기 관리자**: byoneself4023@ajou.ac.kr (Kuka)
-- **테스트 계정**: testuser@example.com, testworker@example.com, lawyer@example.com
+- **테스트 계정**: workit.user@ajou.ac.kr, workit.worker@ajou.ac.kr, workit.lawyer@ajou.ac.kr (`example.com` 사용 불가)
 - **Docker 컨테이너**: FastAPI 애플리케이션 + Nginx 리버스 프록시
 - **데이터베이스 테이블**: 사용자, 보상금 신청, 노무사, 상담, 판례 등
 - **AI 모델**: TensorFlow DNN 장해등급 예측 모델, SBERT 임베딩

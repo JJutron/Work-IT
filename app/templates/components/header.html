@@ -1,23 +1,23 @@
-<!-- SANZERO 헤더 — editorial shell -->
+<!-- SANZERO 헤더 — 컴프: 로고 / 중앙 내비 / 로그인 sharp -->
+{% from "components/sanzero_mark.html" import icon as sanzero_icon %}
 <header class="bg-surface border-b border-border sticky top-0 z-50" x-data="{ mobileMenuOpen: false }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-            <a href="/" class="flex items-center space-x-3" aria-label="SANZERO 홈">
-                <svg class="w-8 h-8 text-ink" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                    <path d="M16 3.5 L27 8.2 V16.8 C27 23.1 22.3 28.2 16 29.5 C9.7 28.2 5 23.1 5 16.8 V8.2 Z" stroke="currentColor" stroke-width="1.5"/>
-                    <circle cx="16" cy="16.5" r="5.2" stroke="currentColor" stroke-width="1.5"/>
-                    <path d="M14.2 16.5 C14.2 14.9 15.2 14.2 16.6 14.2 C17.9 14.2 18.8 14.8 18.8 15.8 C18.8 16.7 18.1 17.1 16.8 17.4 L15.4 17.8 C13.8 18.2 12.9 18.9 12.9 20.4 C12.9 22.2 14.4 23.3 16.7 23.3 C18.7 23.3 20.1 22.4 20.6 21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span class="text-lg font-bold tracking-tight text-ink">SANZERO</span>
+        <div class="relative flex items-center h-16">
+            <a href="/" class="flex items-center space-x-3 shrink-0 z-10 min-w-0">
+                {{ sanzero_icon() }}
+                <span class="flex flex-col justify-center min-w-0">
+                    <span class="text-lg font-bold tracking-tight text-ink leading-none">SANZERO</span>
+                    <span class="mt-1 text-[11px] text-muted tracking-tight leading-none whitespace-nowrap">산업재해 보상 서비스</span>
+                </span>
             </a>
 
-            <nav class="hidden md:flex items-center space-x-8" aria-label="주요 메뉴">
-                <a href="/compensation" class="text-sm font-medium text-muted hover:text-ink transition-colors">보상금 관리</a>
-                <a href="/analysis/precedent" class="text-sm font-medium text-muted hover:text-ink transition-colors">AI 분석</a>
-                <a href="/lawyers/search" class="text-sm font-medium text-muted hover:text-ink transition-colors">노무사 서비스</a>
+            <nav class="hidden md:flex absolute inset-x-0 justify-center items-center space-x-8" aria-label="주요 메뉴">
+                <a href="/compensation/calculator" class="text-sm font-medium text-muted hover:text-ink transition-colors">보상금 계산기</a>
+                <a href="/compensation/status" class="text-sm font-medium text-muted hover:text-ink transition-colors">보상 진행 현황</a>
+                <a href="/analysis/precedent" class="text-sm font-medium text-muted hover:text-ink transition-colors">판례 분석</a>
             </nav>
 
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-3 ml-auto shrink-0 z-10">
                 {% if current_user %}
                 <div class="relative">
                     <button id="user-menu-button" onclick="toggleUserDropdown()" class="flex items-center space-x-3 text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-ink focus:ring-offset-2">
@@ -30,14 +30,13 @@
                         </svg>
                     </button>
                     <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 bg-surface rounded-lg border border-border py-1 z-50">
-                        <a href="/auth/profile" class="block px-4 py-2 text-sm text-ink hover:bg-gray-50">프로필 관리</a>
+                        <a href="/auth/profile" class="block px-4 py-2 text-sm text-ink hover:bg-surface">프로필 관리</a>
                         <hr class="my-1 border-border">
-                        <button onclick="handleLogout(event)" class="block w-full text-left px-4 py-2 text-sm text-ink hover:bg-gray-50">로그아웃</button>
+                        <button onclick="handleLogout(event)" class="block w-full text-left px-4 py-2 text-sm text-ink hover:bg-surface">로그아웃</button>
                     </div>
                 </div>
                 {% else %}
-                <a href="/auth/login" class="text-sm font-medium text-muted hover:text-ink">로그인</a>
-                <a href="/auth/signup" class="bg-ink text-surface px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition-opacity">회원가입</a>
+                <a href="/auth/login" class="bg-ink text-surface px-5 py-2 rounded-none text-sm font-medium hover:opacity-90 transition-opacity">로그인</a>
                 {% endif %}
 
                 <button type="button" class="md:hidden p-2 text-muted hover:text-ink rounded-md"
@@ -53,9 +52,9 @@
         </div>
 
         <nav id="mobile-menu" class="md:hidden border-t border-border py-3 space-y-1" x-show="mobileMenuOpen" x-cloak>
-            <a href="/compensation" class="block px-2 py-2 text-sm text-ink">보상금 관리</a>
-            <a href="/analysis/precedent" class="block px-2 py-2 text-sm text-ink">AI 분석</a>
-            <a href="/lawyers/search" class="block px-2 py-2 text-sm text-ink">노무사 서비스</a>
+            <a href="/compensation/calculator" class="block px-2 py-2 text-sm text-ink">보상금 계산기</a>
+            <a href="/compensation/status" class="block px-2 py-2 text-sm text-ink">보상 진행 현황</a>
+            <a href="/analysis/precedent" class="block px-2 py-2 text-sm text-ink">판례 분석</a>
         </nav>
     </div>
 </header>
