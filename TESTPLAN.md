@@ -277,7 +277,7 @@ docker compose up --build -d
 
 ## 2026-08-20 홈 Why + Next.js 1단계
 
-- [ ] nginx `location = /`이 Next.js를 타고, HTML에 Next 청크(`/_next/`)가 있다. FastAPI Jinja 폴백은 `:8000`으로만
+- [ ] nginx `location = /`이 홈 앱을 타고, HTML에 프론트 청크가 있다. FastAPI Jinja 폴백은 `:8000`으로만
 - [ ] 소개에 Why 3열·서비스명 그리드 대신 가운데 제목 **내 조건으로 받을 금액부터 확인하세요.** 과정 `01–04` 마케팅 그리드 없음
 - [ ] 기능 챕터 3개 지그재그: 계산(휴업·장해·유족) / 분석(장해등급·유사 판례·유리불리) / 신청(신청서·진행 현황·상담). 분석 챕터 링크는 장해등급 예측. 각 챕터 텍스트 링크만
 - [ ] 히어로 CTA: 「내 보상금 확인하기」→ `/compensation/calculator`. 진행 현황·방패 프레임·하단 CTA 바 유지. 하단 「한 장의 양식」도해 없음
@@ -337,3 +337,11 @@ docker compose up --build -d
 - [ ] `/analysis/disability`에서 예측하기를 누르면 프로그레스 링 오버레이가 바로 뜨고, 가운데 %와 단계 문구가 바뀐다. 값은 화면용이라 실제 모델 진행과 달라도 된다
 - [ ] `/analysis/precedent`에서 검색을 누르면 같은 링이 뜨고, 결과가 나오면 100% 후 사라진다. 예전 스피너 「검색 중...」카드는 없다
 - [ ] `prefers-reduced-motion: reduce`이면 링이 돌지 않고 중간 값에서 기다린다
+
+## 2026-08-24 홈 Nuxt
+
+- [ ] `pytest test_nginx_nuxt_home.py`
+- [ ] nginx `location = /`이 Nuxt를 타고, HTML에 `/_nuxt/`가 있고 `/_next/`는 없다. FastAPI Jinja 폴백은 `:8000`
+- [ ] 게스트 히어로 CTA는 「내 보상금 확인하기」→ `/compensation/calculator`. 로그인 홈 JSON에 이메일·id 없음
+- [ ] 히어로 방패 꼭대기·밑점이 한 점으로 붙고, `prefers-reduced-motion`이면 모션이 바로 멈춘다
+- [ ] 계산기·판례·신청·로그인은 계속 FastAPI+Jinja

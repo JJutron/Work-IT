@@ -216,7 +216,7 @@ def build_home_payload(
     current_user: Optional[Dict[str, Any]],
     claim_progress: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
-    """Next.js `/` SSR이 쓰는 홈 페이로드."""
+    """Nuxt `/` SSR이 쓰는 홈 페이로드."""
     progress = claim_progress if claim_progress is not None else derive_claim_progress()
     return {
         "user": serialize_home_user(current_user),

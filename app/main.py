@@ -1,5 +1,5 @@
 """
-SANZERO - AI 기반 산업재해 보상 서비스 플랫폼
+산재ON - 산업재해 보상 웹 서비스
 메인 FastAPI 애플리케이션
 """
 
@@ -29,8 +29,8 @@ setup_logging(level=os.getenv("LOG_LEVEL", "INFO"))
 
 # FastAPI 앱 인스턴스 생성
 app = FastAPI(
-    title="SANZERO",
-    description="AI 기반 산업재해 보상 서비스 플랫폼",
+    title="산재ON",
+    description="산업재해 보상 웹 서비스",
     version="1.0.0",
     docs_url="/docs" if os.getenv("ENVIRONMENT") == "development" else None,
     redoc_url="/redoc" if os.getenv("ENVIRONMENT") == "development" else None
@@ -134,7 +134,7 @@ async def root(request: Request):
         "pages/dashboard.html",
         {
             "request": request,
-            "title": "SANZERO - 산업재해 보상 서비스",
+            "title": "산재ON - 산업재해 보상 서비스",
             "current_user": current_user,
             "claim_progress": claim_progress,
         }
@@ -143,7 +143,7 @@ async def root(request: Request):
 
 @app.get("/api/home")
 async def home_api(request: Request):
-    """Next.js 홈 SSR용 JSON. 브라우저에 Supabase 키를 내리지 않는다."""
+    """Nuxt 홈 SSR용 JSON. 브라우저에 Supabase 키를 내리지 않는다."""
     from fastapi.encoders import jsonable_encoder
     from fastapi.responses import JSONResponse
     from app.utils.security import get_current_user
@@ -170,7 +170,7 @@ async def health_check():
 @app.on_event("startup")
 async def startup_event():
     """앱 시작 시 초기화 작업"""
-    print("🚀 SANZERO 서비스가 시작되었습니다.")
+    print("🚀 산재ON 서비스가 시작되었습니다.")
     print("📊 대시보드: http://localhost:8000")
 
     # 데이터베이스 연결 테스트 (Docker 환경에서는 401 에러 발생하므로 건너뜀)
@@ -195,7 +195,7 @@ async def startup_event():
 async def shutdown_event():
     """앱 종료 시 정리 작업"""
 
-    print("🛑 SANZERO 서비스가 종료되었습니다.")
+    print("🛑 산재ON 서비스가 종료되었습니다.")
 
 if __name__ == "__main__":
     import uvicorn

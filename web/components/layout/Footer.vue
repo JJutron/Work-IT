@@ -1,0 +1,13 @@
+<template>
+  <footer class="border-t border-border bg-surface">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <nav class="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted" aria-label="푸터">
+        <a href="/compensation/calculator" class="nav-link hover:text-ink">보상금 계산기</a>
+        <a href="/analysis/precedent" class="nav-link hover:text-ink">판례 분석</a>
+        <a href="/auth/login" class="nav-link hover:text-ink">로그인</a>
+        <a href="/lawyers/search" class="nav-link hover:text-ink">전문가 상담</a>
+      </nav>
+      <p class="text-xs text-muted">© 2026 산재ON. 산업안전보건공단 1644-4544 · 고용노동부 1350</p>
+    </div>
+  </footer>
+</template>
