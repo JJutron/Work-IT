@@ -1,4 +1,4 @@
-# SANZERO 테스트 계획
+# 산재ON 테스트 계획
 
 ## 📋 테스트 전략
 
@@ -26,6 +26,7 @@
 - [ ] **비밀번호 보안**: 해시 처리, 복잡성 요구사항
 
 #### 보안 검증
+- [x] **로그인 CSRF**: GET `/auth/login`의 쿠키와 hidden이 같다. 불일치·누락 시 세션 쿠키 없음. `pytest test_login_csrf.py`
 - [ ] **CSRF 방어**: Double Submit Cookie 패턴 동작
 - [ ] **XSS 방어**: 사용자 입력 sanitization 확인
 - [ ] **세션 보안**: HttpOnly, Secure 쿠키 설정
@@ -33,6 +34,7 @@
 ### 2. 산재 보상 신청 테스트 💼
 
 #### 보상금 계산기
+- [x] **계산 스냅샷**: 로그인 계산 성공 시 `claim_drafts`에 최신 1건. `get_claim_progress_for_user`가 `has_calculation`을 반영. `pytest test_claim_draft.py test_claim_progress_lookup.py`
 - [ ] **정확한 계산**: 2025년 기준 보상금 수식 검증
 - [ ] **다양한 시나리오**: 5가지 보상금 유형별 계산
 - [ ] **예외 케이스**: 잘못된 입력값 처리
@@ -215,7 +217,7 @@ docker compose up --build -d
 ---
 
 *문서 최종 업데이트: 2026-08-19*
-*테스트 환경: SANZERO v1.0 + editorial home shell*
+*테스트 환경: 산재ON v1.0 + editorial home shell*
 
 ## 2026-08-19 Editorial 홈 셸
 
@@ -276,7 +278,7 @@ docker compose up --build -d
 ## 2026-08-20 홈 Why + Next.js 1단계
 
 - [ ] nginx `location = /`이 Next.js를 타고, HTML에 Next 청크(`/_next/`)가 있다. FastAPI Jinja 폴백은 `:8000`으로만
-- [ ] 소개에 Why 3열·`WHY SANZERO` 대신 가운데 제목 **내 조건으로 받을 금액부터 확인하세요.** 과정 `01–04` 마케팅 그리드 없음
+- [ ] 소개에 Why 3열·서비스명 그리드 대신 가운데 제목 **내 조건으로 받을 금액부터 확인하세요.** 과정 `01–04` 마케팅 그리드 없음
 - [ ] 기능 챕터 3개 지그재그: 계산(휴업·장해·유족) / 분석(장해등급·유사 판례·유리불리) / 신청(신청서·진행 현황·상담). 분석 챕터 링크는 장해등급 예측. 각 챕터 텍스트 링크만
 - [ ] 히어로 CTA: 「내 보상금 확인하기」→ `/compensation/calculator`. 진행 현황·방패 프레임·하단 CTA 바 유지. 하단 「한 장의 양식」도해 없음
 - [ ] 히어로가 warm-paper 위 가운데 방패 프레임 안에 카피를 두고, `못 받은 보상금`과 `있으신가요?`가 단어 중간에서 끊기지 않음. 그리드·7:5 3D 분할 없음
@@ -292,7 +294,7 @@ docker compose up --build -d
 - [ ] 기능 챕터 4:3 스테이지에 계산기·판례 검색·신청/현황 실화면 루프(WebP/GIF). `prefers-reduced-motion`이면 JPG 포스터. 추가 accent fill 버튼 없음
 - [ ] 하단 「한 장의 양식으로 짚습니다」도해·서비스 명세 표가 없음. 진행은 히어로 아래 「내 보상금, 지금 어디까지 왔나요」만
 - [ ] 현재 단계 점과 「지금 여기」가 1.4s 점멸. 제출 후면 심사 도장(심사 대기 등)이 점멸. `prefers-reduced-motion`이면 정지
-- [ ] 헤더 로고는 SANZERO 아래 「산업재해 보상 서비스」. 히어로에 「SANZERO · 산재 보상」 eyebrow 없음
+- [ ] 헤더 로고는 산재ON 아래 「산업재해 보상 서비스」. 히어로에 서비스명 eyebrow 없음
 - [ ] 히어로 제목은 「혹시, 못 받은 보상금 있으신가요?」리드: 사고 내용과 임금만 입력하면 예상 보상금을 확인하실 수 있습니다. / 장해등급은 몰라도 됩니다. 출처 없는 평균 금액·소요 시간은 쓰지 않음. CTA는 「내 보상금 확인하기」
 - [ ] 히어로 「내 보상금 확인하기」는 ink(`#191817`) fill, `min-h-14`·`text-lg`. SaaS 파랑 `#2563EB` fill이 아님. 테두리 링이 밖으로 퍼짐. `prefers-reduced-motion`이면 링 정지
 

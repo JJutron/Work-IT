@@ -80,29 +80,34 @@ async def login_form(
     csrf_token: str = Form(...)
 ):
     """폼 기반 로그인 처리"""
-    # CSRF 토큰 검증 (임시로 비활성화)
-    cookie_token = request.cookies.get("csrf_token")
-    logger.info(f"CSRF validation - Cookie: {cookie_token[:20] if cookie_token else 'None'}..., Form: {csrf_token[:20] if csrf_token else 'None'}...")
-
-    # TODO: CSRF 검증 다시 활성화 필요
-    # if not security.verify_csrf_token(request, csrf_token):
-    #     logger.warning(f"CSRF token verification failed for login attempt: {email}")
-    #     new_csrf_token = security.generate_csrf_token()
-    #     response = templates.TemplateResponse(
-    #         "pages/auth/login.html",
-    #         {
-    #             "request": request,
-    #             "error": "보안 토큰이 유효하지 않습니다.",
-    #             "csrf_token": new_csrf_token
-    #         }
-    #     )
-    #     set_csrf_cookie(response, new_csrf_token)
-    #     return response
+    if not security.verify_csrf_token(request, csrf_token):
+        logger.warning("CSRF token verification failed for login")
+        new_csrf_token = security.generate_csrf_token()
+        response = templates.TemplateResponse(
+            "pages/auth/login.html",
+            {
+                "request": request,
+                "error": "보안 토큰이 유효하지 않습니다.",
+                "csrf_token": new_csrf_token,
+            },
+        )
+        set_csrf_cookie(response, new_csrf_token)
+        return response
 
     try:
+        from app.utils.config import settings
+        from app.utils.security import DEMO_USER
+
+        if settings.demo_auth:
+            token_data = {**DEMO_USER}
+            token = security.create_access_token(token_data)
+            response = RedirectResponse(url="/", status_code=302)
+            set_auth_cookie(response, token)
+            logger.info("Demo auth login (no database)")
+            return response
+
         # Supabase Auth로 로그인 시도 (HTTP 직접 호출로 우회)
         import httpx
-        from app.utils.config import settings
 
         auth_url = f"{settings.supabase_url}/auth/v1/token?grant_type=password"
         auth_headers = {
@@ -119,10 +124,17 @@ async def login_form(
             auth_response = await client.post(auth_url, headers=auth_headers, json=auth_data, timeout=10)
 
         if auth_response.status_code != 200:
-            logger.warning(f"Supabase auth failed for email: {email}")
+            logger.warning(
+                f"Supabase auth failed for email: {email}: {auth_response.text[:200]}"
+            )
+            if settings.demo_auth:
+                token = security.create_access_token({**DEMO_USER})
+                response = RedirectResponse(url="/", status_code=302)
+                set_auth_cookie(response, token)
+                return response
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="이메일 또는 비밀번호가 올바르지 않습니다."
+                detail="이메일 또는 비밀번호가 올바르지 않습니다.",
             )
 
         # HTTP 응답에서 사용자 정보 추출

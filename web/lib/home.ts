@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { fastapiCandidates } from "./fastapi";
+import { fastapiBaseUrl } from "./fastapi";
 import {
   GUEST_CLAIM_PROGRESS,
   type HomePayload,
@@ -19,32 +19,26 @@ export async function getHomePayload(): Promise<HomePayload> {
     .join("; ");
 
   const headers: HeadersInit = cookieHeader ? { cookie: cookieHeader } : {};
-  let lastError: unknown;
+  const base = fastapiBaseUrl();
 
-  for (const base of fastapiCandidates()) {
-    try {
-      const response = await fetch(`${base}/api/home`, {
-        headers,
-        cache: "no-store",
-      });
-      if (!response.ok) {
-        lastError = new Error(`${base}/api/home ${response.status}`);
-        continue;
-      }
-      const body: unknown = await response.json();
-      if (!isHomePayload(body)) {
-        lastError = new Error(`${base}/api/home schema`);
-        continue;
-      }
-      return body;
-    } catch (error) {
-      lastError = error;
+  try {
+    const response = await fetch(`${base}/api/home`, {
+      headers,
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error(`${base}/api/home ${response.status}`);
     }
+    const body: unknown = await response.json();
+    if (!isHomePayload(body)) {
+      throw new Error(`${base}/api/home schema`);
+    }
+    return body;
+  } catch (error) {
+    console.error("[home] GET /api/home failed", base, error);
+    return {
+      user: null,
+      claim_progress: GUEST_CLAIM_PROGRESS,
+    };
   }
-
-  console.error("[home] GET /api/home failed", lastError);
-  return {
-    user: null,
-    claim_progress: GUEST_CLAIM_PROGRESS,
-  };
 }
