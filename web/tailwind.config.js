@@ -1,7 +1,10 @@
-import type { Config } from "tailwindcss";
-
-const config: Config = {
-  content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./app.vue",
+    "./pages/**/*.vue",
+    "./components/**/*.vue",
+  ],
   theme: {
     extend: {
       colors: {
@@ -19,5 +22,3 @@ const config: Config = {
   },
   plugins: [],
 };
-
-export default config;

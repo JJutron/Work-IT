@@ -310,6 +310,47 @@ body {
   animation-delay: 160ms;
 }
 
+.reveal-motion:not(.is-revealed) {
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.reveal-motion {
+  transition:
+    opacity var(--duration-enter) var(--ease-out-quint),
+    transform var(--duration-enter) var(--ease-out-quint);
+}
+
+.reveal-motion.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+.header-caret {
+  transition: transform 200ms var(--ease-out-quint);
+}
+
+.header-caret.is-open {
+  transform: rotate(180deg);
+}
+
+.header-caret.is-reduced {
+  transition: none;
+}
+
+.header-login:active {
+  transform: scale(0.97);
+}
+
+.industry-equation > .reveal-motion {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 1.5rem 1.25rem;
+}
+
 .sz-fade {
   animation: sz-fade 400ms linear both;
   animation-delay: 120ms;

@@ -43,14 +43,14 @@
 - 계산기 CSRF: 폼 토큰은 **쿠키와 같은 값**을 써야 함. 새로 난수를 만들면 403이고, 그걸 Exception으로 삼키면 500처럼 보임
 - 로그인 CSRF도 같다. 쿠키와 hidden이 어긋나면 로그인 화면에 「보안 토큰이 유효하지 않습니다.」 계산 스냅샷은 `claim_drafts` (SQL: `scripts/add_claim_drafts.sql`). 없으면 저장만 실패하고 계산 결과는 그대로 내려간다. 홈 진행은 sessionStorage로 칠하지 않는다.
 
-### 홈 `/`가 Jinja로 보이거나 Next 청크 404
-- **원인**: nginx가 `location = /`·`/_next/`를 Next `:3000`으로 안 보냄. `sanzero-next`가 없거나 아직 listen 전
-- **확인**: `http://localhost:8000/`는 FastAPI 폴백(Jinja). 포트 80이 Next 홈
-- **해결**: `docker compose up --build -d`로 nginx·next·web을 같이 올림. Docker 명령은 사용자가 실행
+### 홈 `/`가 Jinja로 보이거나 Nuxt 청크 404
+- **원인**: nginx가 `location = /`·`/_nuxt/`를 Nuxt `:3000`으로 안 보냄. `sanzero-nuxt`가 없거나 아직 listen 전
+- **확인**: `http://localhost:8000/`는 FastAPI 폴백(Jinja). 포트 80이 Nuxt 홈
+- **해결**: `docker compose up --build -d`로 nginx·nuxt·web을 같이 올림. Docker 명령은 사용자가 실행
 
 ### localhost:3000에서 방패 GLB 404 · 홈 API가 비로그인만
-- **원인**: GLB는 FastAPI `/static/models/`에만 있다. Next `public`에 복사하지 않음. 예전 SSR 기본값이 `http://web:8000`이라 호스트 `next dev`는 `/api/home`에 못 붙고 게스트 폴백만 씀
-- **해결**: `web/next.config.ts`가 `/static`·`/api` 등을 FastAPI로 rewrite. SSR은 `FASTAPI_INTERNAL_URL`(로컬 `http://localhost:8000`, Docker `http://web:8000`)로 `GET /api/home` 호출. Next 재시작 필요
+- **원인**: GLB는 FastAPI `/static/models/`에만 있다. Nuxt `public`에 복사하지 않음. 예전 SSR 기본값이 `http://web:8000`이라 호스트 `nuxt dev`는 `/api/home`에 못 붙고 게스트 폴백만 씀
+- **해결**: `web/nuxt.config.js` nitro `devProxy`가 `/static`·`/api` 등을 FastAPI로 넘김. SSR은 `FASTAPI_INTERNAL_URL`(로컬 `http://localhost:8000`, Docker `http://web:8000`)로 `GET /api/home` 호출. Nuxt 재시작 필요
 
 - **증상**: 화면은 열리지만 노무사/신청/판례가 비어 있거나 로그인이 거절됨
 - **원인**: 테이블만 있고 Auth 계정이 없음. `example.com`은 Supabase가 invalid email로 거절

@@ -78,8 +78,10 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 
-# Next.js 홈
+# Nuxt 홈
 web/node_modules/
+web/.nuxt/
+web/.output/
 web/.next/
 web/tsconfig.tsbuildinfo
 scripts/node_modules/

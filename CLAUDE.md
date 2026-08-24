@@ -1,22 +1,24 @@
-# 산재 보상 서비스 시스템
+# 산재ON
+
+제품 레포. 외부 PR·이슈 기여는 받지 않는다. 사람이 보는 이름은 **산재ON**, 코드·컨테이너 식별자는 당분간 `sanzero`.
 
 ## 프로젝트 개요
-- **서비스명**: SANZERO - AI 기반 산업재해 보상 서비스 플랫폼
+- **서비스명**: 산재ON — 산업재해 보상 웹 서비스 (계산 → 장해등급 → 판례 → 신청)
 
 ## 기술 스택
 - **하이브리드 프론트 (1단계)**
-  - **홈 `/`만** Next.js App Router (`web/`, TypeScript). 모션은 CSS `sz-enter` + Framer Motion, `prefers-reduced-motion` 필수
+  - **홈 `/`만** Nuxt 3 + Vue 3 (`web/`, JavaScript). 모션은 CSS `sz-enter` + IntersectionObserver, `prefers-reduced-motion` 필수
   - 계산기·판례·신청·로그인은 FastAPI + **Jinja2** + HTMX
-  - Nginx: `location = /`·`/_next/` → Next `:3000`, 나머지 → FastAPI `:8000`
-  - Jinja `GET /`는 Next 장애 시 `:8000` 폴백
+  - Nginx: `location = /`·`/_nuxt/` → Nuxt `:3000`, 나머지 → FastAPI `:8000`
+  - Jinja `GET /`는 Nuxt 장애 시 `:8000` 폴백
 - **백엔드**
   - Python 3.13 + FastAPI
   - UI: Tailwind CSS 3.4 (토큰은 DESIGN.md와 동일)
 - **인증·DB·파일 저장**: **Supabase**
   - Auth·Storage·SQL은 Supabase API를 *서버 측(FastAPI)* 에서만 호출
   - **브라우저에는 Supabase JS SDK·키를 포함하지 않음**
-- **배포**: 도커컴포즈 (FastAPI + Next 홈 + nginx)
-  - FastAPI에서 정적 파일(GLB 등) 직접 서빙. Next `public`에 복사하지 않음
+- **배포**: 도커컴포즈 (FastAPI + Nuxt 홈 + nginx)
+  - FastAPI에서 정적 파일(GLB 등) 직접 서빙. Nuxt `public`에 복사하지 않음
   - 단순 구조 지향 (개발/운영 환경 분리 없음)
 
 ## AI/ML 기술 스택

@@ -3,16 +3,16 @@
 ## 프로젝트 개요
 - **서비스명**: 산재ON (코드 식별자 `sanzero`)
 - **설명**: 산업재해 보상 웹 서비스. 계산 → 장해등급 예측 → 판례 → 신청
-- **기술 스택**: Python 3.13, FastAPI, Next.js 홈(`/`), Jinja2 실무, Supabase, HTMX, Tailwind CSS
-- **현재 상태**: 핵심 기능은 동작. 제품 레포 전환·진행 현황 서버 진실·로그인 CSRF·홈 Vue(Nuxt) 이식은 진행 중
+- **기술 스택**: Python 3.13, FastAPI, Nuxt 3 홈(`/`), Jinja2 실무, Supabase, HTMX, Tailwind CSS
+- **현재 상태**: 핵심 기능은 동작. 홈은 Nuxt로 이식 중. 계산기·판례·신청은 Jinja.
 
 ## 2026-08-24 기억할 사항
 - 공식 서비스명 **산재ON**. README·ARCHITECTURE에 유스케이스·런타임·스택 다이어그램을 고정했다. LICENSE는 All Rights Reserved.
 - 오픈소스 커뮤니티(이슈 초대, CONTRIBUTING)를 만들지 않는다.
 - 계산 전용 테이블 `claim_drafts`. 홈 진행은 서버 스냅샷·분석·신청만 본다. sessionStorage로 점을 칠하지 않는다.
 - 로그인 CSRF를 다시 켰다. `pytest test_login_csrf.py`.
-- Next SSR은 `FASTAPI_INTERNAL_URL` 하나만 사용한다.
-- **홈은 Next.js/TS를 버리고 Nuxt 3(Vue 3, JS)로 1:1 이식한다.** 화면·CSS·`GET /api/home`은 유지. Vite SPA는 로그인 첫 페인트가 깨져서 쓰지 않는다. 이식은 2주차. 계산기 Vue는 4주 기본 범위가 아님.
+- Nuxt SSR은 `FASTAPI_INTERNAL_URL` 하나만 사용한다.
+- **홈은 Nuxt 3(Vue 3, JS).** 화면·CSS·`GET /api/home`은 유지. Nginx는 `location /_nuxt/`. Vite SPA는 쓰지 않는다. 계산기 Vue는 4주 기본 범위가 아님.
 
 ## 📊 시스템 구현 현황
 
