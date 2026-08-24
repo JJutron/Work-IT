@@ -12,14 +12,18 @@
 ## 사용자 플로우 다이어그램
 ```
 [일반 사용자]
-├── 메인 대시보드 (/)
+├── 메인 홈 (/) — Next.js App Router. 히어로 + 진행 현황 + 산업재해 실황 + 기능 챕터 3
+│   └── 내 진행 현황: 계산 → 장해등급 → 판례 → 신청서 (현재 단계 점멸)
+│       히어로 CTA: 내 보상금 확인하기 → 계산기
+│       공식 2024 통계 스크롤 뒤 기능 챕터. 하단 접수 대장 도해 없음
 ├── 산재 보상 신청/관리 (/compensation)
-│   ├── 신청서 작성/수정
-│   ├── 신청 현황 조회
-│   └── 서류 업로드
+│   ├── 보상금 계산 (/compensation/calculator)
+│   ├── 신청서 작성 (/compensation/apply)
+│   └── 진행 현황 (/compensation/status) — 4단계 위치 + 제출 후 심사 배지
 ├── AI 분석 서비스 (/analysis)
-│   ├── 판례 분석
-│   └── AI 장해등급 예측 (준비 중)
+│   ├── 장해등급 예측 (/analysis/disability) — 플로우 2단계, 장해급여 입력
+│   ├── 판례 분석 (/analysis/precedent)
+│   └── 분석 내역 (/analysis/history) — 다시 보기, 단계 아님
 ├── 노무사 서비스 (/lawyers)
 │   ├── 노무사 검색/매칭
 │   └── 상담 예약
@@ -40,15 +44,21 @@
 └── 시스템 모니터링
 ```
 
-## 시스템 구조 (단순 구조)
+## 시스템 구조 (하이브리드 1단계)
 ```
 Docker Compose
 ├── Nginx (리버스 프록시)
-│   ├── Static Content Delivery
+│   ├── location = /  → Next :3000
+│   ├── location /_next/ → Next :3000
+│   ├── Static /static/models (FastAPI, GLB)
 │   ├── Rate Limiting
-│   └── FastAPI 프록시
+│   └── 나머지 → FastAPI :8000
+├── Next.js (`web/`) — 홈 `/`만
+│   └── SSR 시 쿠키를 FastAPI GET /api/home 으로 전달
 └── SANZERO FastAPI 애플리케이션
-    ├── SSR 템플릿 (Jinja2)
+    ├── GET /api/home JSON (user, claim_progress)
+    ├── GET / Jinja 폴백 (nginx가 Next로 보낸 뒤 :8000으로만 도달)
+    ├── SSR 템플릿 (Jinja2) — 계산기·판례·신청·로그인
     ├── HTMX 페이지 갱신
     ├── REST API 엔드포인트
     ├── 인증/인가 (Supabase Auth)
@@ -57,8 +67,8 @@ Docker Compose
     │   ├── 보상금 계산
     │   └── 신청 현황 추적
     ├── AI 분석 모듈
-    │   ├── 판례 분석
-    │   └── AI 장해등급 예측 (준비 중)
+    │   ├── 장해등급 예측 (플로우 2단계)
+    │   └── 판례 분석
     ├── 노무사 서비스 모듈
     │   ├── 노무사 검색/매칭
     │   └── 상담 예약 관리
@@ -108,7 +118,7 @@ sanzero-platform/
 │   │   └── database.py       # DB 모델
 │   ├── services/
 │   │   ├── compensation_service.py  # 보상금 신청/계산/관리
-│   │   ├── analysis_service.py      # 판례 분석 + 장해등급 예측 (준비 중)
+│   │   ├── analysis_service.py      # 판례 분석 + 장해등급 예측
 │   │   ├── lawyer_service.py        # 노무사 검색/매칭/예약
 │   │   ├── user_service.py          # 사용자 관리
 │   │   └── admin_service.py         # 관리자 기능
@@ -127,11 +137,15 @@ sanzero-platform/
 │   ├── static/              # 정적 파일
 │   │   ├── css/
 │   │   ├── js/
-│   │   └── images/
+│   │   ├── images/
+│   │   └── models/          # 방패 GLB 보관(홈 히어로는 SVG 프레임)
 │   └── utils/
 │       ├── security.py
 │       ├── helpers.py
 │       └── config.py
+├── web/                  # Next.js 홈 (App Router)
+│   ├── app/page.tsx
+│   └── components/home/  # Hero, ClaimProgress, IndustryReality, FeatureChapters, HomeCtaBar
 ├── docker-compose.yml
 ├── Dockerfile
 ├── requirements.txt
@@ -140,18 +154,19 @@ sanzero-platform/
 
 ## URL 라우팅 체계 (단순화)
 ```
-/ - 통합 메인 대시보드 (모든 서비스 접근 허브)
+/ - Next.js 홈 (히어로 + 진행 현황 + 산업재해 실황 + 기능 챕터). Jinja GET / 는 :8000 폴백
+GET /api/home - 홈 SSR JSON. user(null|{username,user_type}), claim_progress. 이메일·id 없음. 브라우저에 Supabase 키 없음
 
 # 산재 보상 서비스
 /compensation - 보상금 신청/관리 메인
 /compensation/apply - 신청서 작성
-/compensation/status - 신청 현황 조회
+/compensation/status - 보상 진행 현황 (계산→장해등급→판례→신청 + 제출 후 심사)
 /compensation/calculate - 보상금 계산
 
 # AI 분석 서비스
 /analysis - 메인 대시보드로 리다이렉트 (301)
 /analysis/precedent - 판례 분석
-/analysis/disability - AI 장해등급 예측 (준비 중)
+/analysis/disability - AI 장해등급 예측 (플로우 2단계. 장해급여 계산 입력)
 /analysis/history - 분석 내역
 
 # 노무사 서비스
@@ -179,17 +194,17 @@ sanzero-platform/
 - **@footer.xml**: 공통 푸터
 
 ### 메인 대시보드
-- **@dashboard.xml**: SANZERO 메인 대시보드
+- **@dashboard.xml**: 히어로 + 진행 현황 + 산업재해 실황 스크롤 + 기능 챕터 3 (하단 접수 대장 도해 없음)
 
 ### 산재 보상 서비스
 - **@compensation-apply.xml**: 보상금 신청 페이지
-- **@compensation-status.xml**: 신청 현황 조회 페이지
+- **@compensation-status.xml**: 보상 진행 현황. 01–04 연결 스텝퍼 + 지금 할 일/심사 배너 + 신청서 목록.
 - **@compensation-calculate.xml**: 보상금 계산 페이지
 
 ### AI 분석 서비스
 - **@analysis-main.xml**: AI 분석 메인 페이지
 - **@analysis-precedent.xml**: 판례 분석 페이지
-- **@analysis-disability.xml**: AI 장해등급 예측 페이지 (준비 중)
+- **@analysis-disability.xml**: AI 장해등급 예측 페이지 (플로우 2단계)
 
 ### 노무사 서비스
 - **@lawyers-search.xml**: 노무사 검색/매칭 페이지
@@ -213,8 +228,8 @@ sanzero-platform/
 - **lawyers**: 노무사 정보 (면허, 전문분야, 성과 지표)
 - **compensation_applications**: 보상금 신청 (사고정보, AI 분석 결과)
 - **consultations**: 상담 관리 (예약, 상태, 매칭 정보)
-- **precedents**: 판례 데이터 (벡터 임베딩, 분석 결과)
-- **analysis_requests**: AI 분석 요청 (판례/장해등급 예측(준비 중))
+- **precedents**: 판례 데이터 (`embedding vector(384)`, `match_precedents` RPC, 유사도 = `1 - (embedding <=> query)` 코사인. 화면은 ×100% )
+- **analysis_requests**: AI 분석 요청 (판례 검색, 장해등급 예측)
 - **notifications**: 알림 시스템 (타입별 발송 관리)
 
 ### 주요 관계
@@ -247,7 +262,7 @@ _상세한 기술 스택 정보는 @CLAUDE.md 참조_
 - **인증**: `/auth/*` (로그인, 회원가입, 프로필)
 - **보상금**: `/compensation/*` (계산, 신청, 관리)
 - **노무사**: `/lawyers/*` (검색, 예약, 상담)
-- **AI 분석**: `/analysis/*` (판례, 장해등급 예측(준비 중))
+- **AI 분석**: `/analysis/*` (판례, 장해등급 예측). `POST /analysis/api/precedent/simple`은 RAG 검색 후 로그인 사용자면 `analysis_requests`에 저장하고 `saved`/`request_id`를 반환. 유리 판례는 Test_casePedia 근로자 유불리(유리 O/불리 X/애매 △).
 - **관리자**: `/admin/*` (승인, 사용자 관리)
 
 ### API 특징
@@ -276,26 +291,27 @@ _상세한 기술 스택 정보는 @CLAUDE.md 참조_
 
 ### Docker 구성
 ```yaml
-# docker-compose.yml (단순화됨)
+# docker-compose.yml
 services:
   web:
     build: .
     ports: ["8000:8000"]
+  next:
+    build: ./web
+    ports: ["3000:3000"]
     environment:
-      - SUPABASE_URL=${SUPABASE_URL}
-      - SUPABASE_SERVICE_KEY=${SUPABASE_SERVICE_KEY}
-
+      - FASTAPI_INTERNAL_URL=http://web:8000
   nginx:
     image: nginx:alpine
     ports: ["80:80"]
-    depends_on: [web]
+    depends_on: [web, next]
 ```
 
 ### 핵심 설정
-- **포트**: Nginx 80 → FastAPI 8000
-- **Rate Limiting**: 30 req/min (Nginx 레벨)
+- **포트**: Nginx 80 → `/`·`/_next/`는 Next 3000, 나머지는 FastAPI 8000
+- **Rate Limiting**: Nginx 레벨
 - **Health Check**: FastAPI `/health` 엔드포인트
-- **환경변수**: `.env` 파일 기반 관리
+- **환경변수**: `.env` 파일 기반 관리. Next는 `FASTAPI_INTERNAL_URL`만 사용.
 
 ### 프로덕션 준비
 - **보안 헤더**: CSP, X-Frame-Options 적용

@@ -3,13 +3,18 @@ SANZERO - AI 기반 산업재해 보상 서비스 플랫폼
 메인 FastAPI 애플리케이션
 """
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import os
 from pathlib import Path
+import mimetypes
+
+mimetypes.add_type("model/gltf-binary", ".glb")
+mimetypes.add_type("image/vnd.radiance", ".hdr")
 
 # 라우터 임포트
 from app.routers import auth
@@ -35,10 +40,24 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 templates = Jinja2Templates(directory="app/templates")
 
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """HTML 요청의 로그인 필요(303)는 로그인 페이지로 보낸다."""
+    location = (exc.headers or {}).get("Location")
+    if exc.status_code in (302, 303) and location:
+        return RedirectResponse(url=location, status_code=303)
+    from fastapi.responses import JSONResponse
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
+
 # 미들웨어 설정
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost", "http://localhost:8000", "http://localhost:80"],
+    allow_origins=[
+        "http://localhost",
+        "http://localhost:8000",
+        "http://localhost:80",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -99,20 +118,47 @@ except ImportError as e:
 # 메인 페이지 라우트
 @app.get("/")
 async def root(request: Request):
-    """메인 대시보드 페이지 - testuser 기반 단일 대시보드"""
+    """메인 대시보드. nginx가 `/`를 Next로 보낸 뒤의 Jinja 폴백."""
     from app.utils.security import get_current_user
 
     current_user = await get_current_user(request)
+    from app.services.claim_progress import get_claim_progress_for_user
 
-    # 통합 대시보드 (관리자 시스템 제거됨)
+    user_id = None
+    if current_user:
+        user_id = current_user.get("user_id") or current_user.get("id")
+
+    claim_progress = await get_claim_progress_for_user(user_id)
+
     return templates.TemplateResponse(
         "pages/dashboard.html",
         {
             "request": request,
             "title": "SANZERO - 산업재해 보상 서비스",
-            "current_user": current_user
+            "current_user": current_user,
+            "claim_progress": claim_progress,
         }
     )
+
+
+@app.get("/api/home")
+async def home_api(request: Request):
+    """Next.js 홈 SSR용 JSON. 브라우저에 Supabase 키를 내리지 않는다."""
+    from fastapi.encoders import jsonable_encoder
+    from fastapi.responses import JSONResponse
+    from app.utils.security import get_current_user
+    from app.services.claim_progress import (
+        build_home_payload,
+        get_claim_progress_for_user,
+    )
+
+    current_user = await get_current_user(request)
+    user_id = None
+    if current_user:
+        user_id = current_user.get("user_id") or current_user.get("id")
+    claim_progress = await get_claim_progress_for_user(user_id)
+    payload = build_home_payload(current_user, claim_progress)
+    return JSONResponse(content=jsonable_encoder(payload))
 
 # 헬스 체크 엔드포인트
 @app.get("/health")

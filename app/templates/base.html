@@ -169,12 +169,18 @@
 
         /* 애니메이션 */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .fade-in {
-            animation: fadeIn 0.3s ease-out;
+            animation: fadeIn 200ms ease-out;
+        }
+
+        .sz-motion {
+            transition-property: color, background-color, border-color, opacity, transform;
+            transition-duration: 200ms;
+            transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         /* Toast 스타일 */
@@ -185,10 +191,13 @@
             z-index: 1000;
             max-width: 400px;
             padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            border: 1px solid #CDD4DC;
+            background: #FDFDFD;
+            color: #191817;
+            box-shadow: none;
             transform: translateX(100%);
-            transition: transform 0.3s ease-in-out;
+            transition: transform 200ms ease-out;
         }
 
         .toast.show {
@@ -206,17 +215,248 @@
             border-radius: 12px;
         }
 
-        .toast.success { border-left: 3px solid #10B981; }
-        .toast.error { border-left: 3px solid #dc2626; }
-        .toast.warning { border-left: 3px solid #F59E0B; }
-        .toast.info { border-left: 3px solid #2563EB; }
-
         .text-display {
             font-size: clamp(2.5rem, 5vw, 4.5rem);
             font-weight: 800;
             letter-spacing: -0.02em;
             line-height: 1.05;
             color: #191817;
+        }
+
+        .text-page {
+            font-size: clamp(1.75rem, 3vw, 2.5rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            color: #191817;
+        }
+
+        ::selection {
+            background: #191817;
+            color: #FDFDFD;
+        }
+
+        :focus-visible {
+            outline: 2px solid #191817;
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: -4rem;
+            z-index: 100;
+            background: #191817;
+            color: #FDFDFD;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+        }
+        .skip-link:focus {
+            top: 1rem;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        html.sz-wait-lock, html.sz-wait-lock body {
+            overflow: hidden;
+        }
+        .sz-wait {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            background: rgba(253, 253, 253, 0.88);
+        }
+        .sz-wait[hidden] {
+            display: none;
+        }
+        .sz-wait-panel {
+            width: 100%;
+            max-width: 22rem;
+            border: 1px solid #CDD4DC;
+            border-radius: 1rem;
+            background: #ffffff;
+            padding: 2rem 1.75rem 1.5rem;
+            text-align: center;
+        }
+        .sz-wait-meter {
+            position: relative;
+            width: 8.5rem;
+            height: 8.5rem;
+            margin: 0 auto 1.25rem;
+        }
+        .sz-wait-svg {
+            width: 100%;
+            height: 100%;
+        }
+        .sz-wait-track {
+            stroke: #CDD4DC;
+            stroke-width: 6;
+        }
+        .sz-wait-arc {
+            stroke: #2563EB;
+            stroke-width: 6;
+        }
+        .sz-wait-pct {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #191817;
+        }
+        .sz-wait-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #191817;
+            margin: 0 0 0.35rem;
+        }
+        .sz-wait-copy {
+            font-size: 0.875rem;
+            color: #6e6a64;
+            margin: 0 0 1.25rem;
+        }
+        .sz-wait-steps {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            text-align: left;
+            display: grid;
+            gap: 0.5rem;
+        }
+        .sz-wait-steps li {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            min-height: 1.5rem;
+            font-size: 0.8125rem;
+            color: #6e6a64;
+        }
+        .sz-wait-steps li.is-now {
+            color: #191817;
+            font-weight: 600;
+        }
+        .sz-wait-steps li.is-done {
+            color: #191817;
+        }
+        .sz-wait-dot {
+            width: 0.5rem;
+            height: 0.5rem;
+            border-radius: 999px;
+            border: 1.5px solid #CDD4DC;
+            background: #ffffff;
+            flex-shrink: 0;
+        }
+        .sz-wait-steps li.is-now .sz-wait-dot {
+            border-color: #2563EB;
+            background: #2563EB;
+            box-shadow: 0 0 0 4px #ffffff, 0 0 0 5px #2563EB;
+        }
+        .sz-wait-steps li.is-done .sz-wait-dot {
+            border-color: #2563EB;
+            background: #2563EB;
+        }
+        .sz-wait-note {
+            margin: 1rem 0 0;
+            font-size: 0.6875rem;
+            color: #6e6a64;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            border: 1px solid #CDD4DC;
+            border-radius: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            background: #FDFDFD;
+            color: #191817;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #191817;
+            box-shadow: 0 0 0 1px #191817;
+        }
+
+        .btn-ink {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #191817;
+            color: #FDFDFD;
+            border-radius: 9999px;
+            padding: 0.625rem 1.25rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: opacity 200ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-ink:hover { opacity: 0.9; }
+        .btn-ink:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .btn-accent {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            background: #2563EB;
+            color: #ffffff;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1.5rem;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background-color 200ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .btn-accent:hover { background: #1d4ed8; }
+        .btn-accent:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .sz-kpi {
+            border: 1px solid #CDD4DC;
+            border-radius: 0.75rem;
+            background: #FDFDFD;
+            padding: 1.25rem 1.5rem;
+        }
+        .sz-pill {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .sz-table th {
+            font-size: 0.6875rem;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: #6e6a64;
+            font-weight: 600;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #CDD4DC;
+            text-align: left;
+        }
+        .sz-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #CDD4DC;
+            vertical-align: middle;
+            font-size: 0.875rem;
+        }
+        .sz-step-active {
+            background: #EFF6FF;
+            color: #2563EB;
+            border-radius: 9999px;
         }
 
         /* 깔끔한 자연스러운 레이아웃 시스템 */
@@ -273,6 +513,7 @@
     {% block extra_head %}{% endblock %}
 </head>
 <body class="bg-surface text-ink font-sans antialiased">
+    <a href="#main-content" class="skip-link">본문으로 건너뛰기</a>
     <!-- 로딩 인디케이터 -->
     <div id="loading-indicator" class="htmx-indicator fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
         <div class="bg-ink text-surface px-4 py-2 rounded-full flex items-center space-x-2">
@@ -288,12 +529,14 @@
     {% include "components/header.html" %}
 
     <!-- 메인 컨텐츠 -->
-    <main class="pb-8 pt-4">
+    <main id="main-content" class="{% block main_class %}pb-8 pt-4{% endblock %}">
         {% block content %}{% endblock %}
     </main>
 
     <!-- 푸터 -->
+    {% block footer %}
     {% include "components/footer.html" %}
+    {% endblock %}
 
     <!-- Toast 컨테이너 -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>

@@ -1,0 +1,198 @@
+{# 보상 진행 현황. 계산 → 장해등급 → 판례 → 신청서 #}
+{% set progress = progress|default({}) %}
+{% set steps = progress.steps|default([
+    {'id': 1, 'label': '계산', 'href': '/compensation/calculator', 'done': false, 'current': true},
+    {'id': 2, 'label': '장해등급 예측', 'href': '/analysis/disability', 'done': false, 'current': false},
+    {'id': 3, 'label': '판례', 'href': '/analysis/precedent', 'done': false, 'current': false},
+    {'id': 4, 'label': '신청서', 'href': '/compensation/apply', 'done': false, 'current': false}
+]) %}
+{% set current_step = progress.current_step|default(1) %}
+{% set completed_count = progress.completed_count|default(0) %}
+{% set total_steps = progress.total_steps|default(4) %}
+{% set next = progress.next_action|default({'label': '내 보상금 확인하기', 'href': '/compensation/calculator'}) %}
+{% set show_continue = show_continue|default(false) %}
+{% set show_all_link = show_all_link|default(true) %}
+{% set heading_text = heading_text|default('내 보상금, 지금 어디까지 왔나요') %}
+{% set track_id = track_id|default('claim-track') %}
+{% set fill_pct = progress.connector_pct|default(0) %}
+
+<style>
+    .claim-docket { position: relative; }
+    .claim-docket-track { position: relative; }
+    .claim-docket-line {
+        display: none;
+        position: absolute;
+        top: 5px;
+        left: 12.5%;
+        right: 12.5%;
+        height: 1px;
+        background: #CDD4DC;
+        pointer-events: none;
+    }
+    .claim-docket-fill {
+        height: 100%;
+        width: var(--docket-fill, 0%);
+        background: #2563EB;
+    }
+    .claim-docket-stations {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 0;
+        position: relative;
+        z-index: 1;
+    }
+    .station-dot {
+        display: block;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        border: 1.5px solid #CDD4DC;
+        background: #FFFFFF;
+        box-shadow: 0 0 0 6px #FFFFFF;
+        flex-shrink: 0;
+    }
+    .station-dot.is-done,
+    .station-dot.is-current {
+        border-color: #2563EB;
+        background: #2563EB;
+    }
+    .station-dot.is-current {
+        width: 12px;
+        height: 12px;
+        box-shadow: 0 0 0 6px #FFFFFF, 0 0 0 8px #2563EB;
+        transform-origin: center;
+        animation: sz-now-dot 1.4s ease-in-out infinite;
+    }
+    .claim-step-card[data-current="true"] .claim-step-label {
+        font-weight: 600;
+        color: #2563EB;
+    }
+    .claim-step-hint.is-now {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #2563EB;
+        animation: sz-now-blink 1.4s ease-in-out infinite;
+    }
+    .claim-stamp {
+        display: inline-block;
+        border: 1px solid #2563EB;
+        color: #2563EB;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        line-height: 1;
+        padding: 5px 7px;
+        margin-top: 6px;
+    }
+    .claim-stamp.is-now {
+        animation: sz-now-blink 1.4s ease-in-out infinite;
+    }
+    @keyframes sz-now-dot {
+        0%, 100% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.4); opacity: 0.4; }
+    }
+    @keyframes sz-now-blink {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.28; }
+    }
+    @media (min-width: 768px) {
+        .claim-docket-line { display: block; }
+        .claim-docket-stations { grid-template-columns: repeat(4, 1fr); }
+        .claim-docket-rail { display: none !important; }
+        .claim-step-label { line-height: 1.25; min-height: 2.5em; padding-inline: 0.25rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .claim-docket-fill { transition: none; }
+        .station-dot.is-current,
+        .claim-step-hint.is-now,
+        .claim-stamp.is-now {
+            animation: none;
+            opacity: 1;
+            transform: none;
+        }
+    }
+</style>
+
+<div id="{{ track_id }}"
+     class="claim-progress-board claim-docket"
+     data-current="{{ current_step }}"
+     data-state="{{ progress.state|default('start') }}"
+     data-completed="{{ completed_count }}"
+     style="--docket-fill: {{ fill_pct }}%;">
+    <div class="flex items-start justify-between gap-3 mb-1">
+        <h2 id="{{ heading_id|default('progress-heading') }}" class="text-base font-bold tracking-tight text-ink leading-snug min-w-0">{{ heading_text }}</h2>
+        {% if show_all_link %}
+        <a href="/compensation/status" class="shrink-0 text-sm text-muted hover:text-ink underline-offset-4 hover:underline whitespace-nowrap pt-0.5">신청 현황 →</a>
+        {% endif %}
+    </div>
+    <p class="text-sm text-muted mb-6 leading-relaxed max-w-xl">
+        <span id="{{ track_id }}-summary">{{ progress.summary|default('예상 보상금을 확인한 뒤 장해등급과 판례를 살펴보고 신청서를 작성할 수 있습니다.') }}</span>
+        {% if progress.count_label and progress.state != 'submitted' %}
+        <span class="text-[#CDD4DC]" aria-hidden="true"> · </span>
+        <span id="{{ track_id }}-count" class="font-mono text-xs tabular-nums tracking-wide">{{ progress.count_label }}</span>
+        {% endif %}
+    </p>
+
+    <div class="claim-docket-track">
+    <div class="claim-docket-line" aria-hidden="true">
+        <div id="{{ track_id }}-fill" class="claim-docket-fill"></div>
+    </div>
+
+    <ol class="claim-docket-stations">
+        {% for step in steps %}
+        {% set is_current = step.current if step.current is defined else (step.id == current_step) %}
+        {% if progress.state == 'submitted' and step.id == 4 and progress.application_status %}
+            {% set hint = progress.application_status.label %}
+            {% set stamped = true %}
+        {% elif step.done and not is_current %}
+            {% set hint = '완료' %}
+            {% set stamped = false %}
+        {% elif is_current %}
+            {% set hint = '지금 여기' %}
+            {% set stamped = false %}
+        {% else %}
+            {% set hint = '대기' %}
+            {% set stamped = false %}
+        {% endif %}
+        <li class="relative {% if not loop.last %}pb-5 md:pb-0{% endif %}">
+            {% if not loop.last %}
+            <span class="claim-docket-rail md:hidden absolute left-[4px] top-3 bottom-0 w-px {% if step.done %}bg-accent{% else %}bg-[#CDD4DC]{% endif %}"
+                  data-rail-after="{{ step.id }}"
+                  aria-hidden="true"></span>
+            {% endif %}
+            <a href="{{ step.href }}"
+               data-step="{{ step.id }}"
+               data-done="{{ 'true' if step.done else 'false' }}"
+               data-current="{{ 'true' if is_current else 'false' }}"
+               {% if is_current %}aria-current="step"{% endif %}
+               class="claim-step-card group flex md:flex-col items-start md:items-center gap-3 md:gap-0 min-h-11 md:min-h-0 text-left md:text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm">
+                <span class="claim-step-marker station-dot mt-0.5 md:mt-0 {% if is_current %}is-current{% elif step.done %}is-done{% endif %}" aria-hidden="true"></span>
+                <span class="min-w-0 md:mt-4">
+                    <span class="claim-step-label block text-sm {% if is_current %}font-semibold text-accent{% elif step.done %}font-medium text-ink{% else %}font-medium text-muted{% endif %}">
+                        {{ step.label }}{% if is_current %}<span class="sr-only"> (현재 단계)</span>{% endif %}
+                    </span>
+                    {% if stamped %}
+                    <span class="claim-step-hint claim-stamp{% if is_current %} is-now{% endif %}">{{ hint }}</span>
+                    {% else %}
+                    <span class="claim-step-hint mt-1 block text-xs {% if is_current %}is-now{% else %}text-muted{% endif %}">{{ hint }}</span>
+                    {% endif %}
+                </span>
+            </a>
+        </li>
+        {% endfor %}
+    </ol>
+    </div>
+
+    {% if show_continue %}
+    <p id="{{ track_id }}-continue-wrap"
+       class="mt-6 {% if progress.state|default('start') in ['start', 'submitted'] %}hidden{% endif %}">
+        <a id="{{ track_id }}-continue"
+           href="{{ next.href }}"
+           class="inline-flex items-center min-h-11 text-sm font-semibold text-accent hover:text-[#1d4ed8] underline-offset-4 hover:underline">
+            {{ next.label }} →
+        </a>
+    </p>
+    {% endif %}
+</div>

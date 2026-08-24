@@ -11,6 +11,24 @@ services:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - web
+      - next
+    restart: unless-stopped
+
+  # Next.js 홈 (`/` + `/_next/`)
+  next:
+    build: ./web
+    container_name: sanzero-next
+    ports:
+      - "3000:3000"
+    environment:
+      FASTAPI_INTERNAL_URL: http://web:8000
+    volumes:
+      - ./web:/app
+      - /app/node_modules
+      - /app/.next
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - web
     restart: unless-stopped
 
   # FastAPI 웹 애플리케이션
@@ -24,6 +42,19 @@ services:
     volumes:
       - .:/app
       - /app/__pycache__
+    # 이미지 CMD는 workers=4 이라 볼륨의 .py가 안 바뀐다. 개발 마운트는 reload로 저장 로직을 반영한다.
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+      - --reload-dir
+      - app
+      - --reload-include
+      - "*.py"
     restart: unless-stopped
     dns:
       - 8.8.8.8

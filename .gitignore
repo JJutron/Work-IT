@@ -14,6 +14,8 @@ downloads/
 eggs/
 .eggs/
 lib/
+!web/lib/
+!web/lib/**
 lib64/
 parts/
 sdist/
@@ -61,6 +63,7 @@ credentials/
 
 # Docker
 .dockerignore
+!web/.dockerignore
 
 # 로그 파일들
 logs/
@@ -74,6 +77,13 @@ coverage.xml
 *.cover
 .hypothesis/
 .pytest_cache/
+
+# Next.js 홈
+web/node_modules/
+web/.next/
+web/tsconfig.tsbuildinfo
+scripts/node_modules/
+app/static/home/frames/
 
 # Jupyter Notebook
 .ipynb_checkpoints/

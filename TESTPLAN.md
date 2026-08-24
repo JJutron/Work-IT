@@ -137,8 +137,8 @@
 
 ### 테스트 계정
 - **관리자**: byoneself4023@ajou.ac.kr (Kuka)
-- **일반 사용자**: testuser@example.com, testworker@example.com
-- **노무사**: lawyer@example.com
+- **일반 사용자**: workit.user@ajou.ac.kr, workit.worker@ajou.ac.kr
+- **노무사**: workit.lawyer@ajou.ac.kr
 
 _자세한 테스트 계정 정보와 비밀번호는 @TESTDATA.md 참조_
 
@@ -227,3 +227,111 @@ docker compose up --build -d
 - [ ] 푸터 giant CTA → `/compensation`
 - [ ] 배경 `#FDFDFD`, 컬러 fill 서비스 카드 없음
 - [ ] 44px 터치: 회원가입 pill, 햄버거
+
+## 2026-08-19 Editorial 토큰 상속
+
+- [ ] `/auth/login` 배경 surface, 제출 버튼 ink pill, 컬러 fill 없음
+- [ ] `/auth/signup` 필드·CSRF 유지, ink 제출 버튼
+- [ ] `/compensation` 보조 링크가 컬러 버튼이 아니라 `→` 텍스트
+- [ ] `/analysis/precedent`, `/lawyers/search` 검색 제출이 ink 계열
+- [ ] `/analysis/disability` 헤더가 셸을 덮어쓰지 않음 (파란 풀폭 헤더 없음)
+- [ ] `/compensation` numbered 카드 + `→` 링크, 컬러 버튼 없음
+
+## 2026-08-19 판례 RAG (SBERT + pgvector)
+
+- [ ] 검색 결과 표·KPI·결과 화면「유사도/관련도」가 0%가 아니고, 응답 `similarity_pct`가 코사인×100이다 (`search_type`은 MiniLM이면 `rag_sbert_pgvector`)
+- [ ] 결과 `case_id`가 UUID이고, 상세 `/analysis/precedent/{uuid}`가 DB 본문을 보여 줌
+- [ ] 임베딩 없는 판례만 있으면 TF-IDF 보조(`tfidf_fallback`) 또는 빈 결과. `-1`급 장해와 무관
+- [ ] `pytest test_precedent_rag.py` PASS (384차원, 스키마 컬럼, UI 매핑)
+
+## 2026-08-19 컴프 4장 레이아웃
+
+- [ ] 실무 화면 히어로가 `text-page`(+`[0n]`). 그라데이션 CTA·왼쪽 컬러 보더·이모지 버튼·`bg-blue-50` 워시 없음. 검색·계산 다음에만 다음 단계 CTA
+- [ ] 홈 3D GLB·`model-viewer`·파란 Zero 궤도·마크 캡션이 히어로에 없다. 방패는 헤더와 같은 SVG 패스의 더블 헤어라인 프레임이며 카피가 그 안 가운데에 있다. `prefers-reduced-motion`이면 stroke-draw와 제목 clip이 정지된다
+- [ ] `/` 히어로 CTA는 「내 보상금 확인하기」→계산기. 진행 현황은 한 줄 타임라인(계산/장해등급/판례/신청서). 원형 01–04 스텝퍼·4칸 카드가 아님
+- [ ] 제출 후 마지막 정거장은 「심사 대기」도장. `4/4 완료`와 모순되지 않음. 방패에 그림자 박스·포스터 사각형이 없음
+- [ ] 로그인 후 장해등급만 있으면 홈에서 「판례」가 지금 진행. 판례만 있으면 「신청서」
+- [ ] `/compensation/status`에 같은 4단계 스텝퍼와 「지금 할 일」CTA가 있음. 신청서가 없으면 계산기/장해등급/판례/신청서 중 다음 단계로 보냄
+- [ ] 제출 후 `/compensation/status`는 파란 「지금 할 일」대신 심사 상태 배너. 홈 히어로는 그대로 계산 시작
+- [ ] `pytest test_claim_progress.py` PASS (`home_cta`는 항상 계산기)
+- [ ] 홈 히어로 CTA는 진행과 무관하게 「내 보상금 확인하기」→ `/compensation/calculator`. 「노무사 연결하기」가 주 버튼이 아님. 계산 결과에도 추천 노무사 카드가 없고, 판단이 어려울 때만 전문가 상담 링크
+- [ ] `/` 히어로는 계산 시작 CTA 하나. 이어서 하기는 진행 현황 텍스트 링크와 하단 바. 계산을 마쳤으면 하단 바만 「장해등급 예측하기」로 바뀜
+- [ ] 계산 결과 화면 주 버튼이 「장해등급 예측하기」, 보조가 「새로 계산하기」. 장해가 없으면 「판례부터」텍스트 링크
+- [ ] 비로그인 「로그인」은 ink fill, CTA와 같은 sharp(`rounded-none`). pill 아님
+- [ ] `/analysis/precedent` 좌 사이드바 + KPI 4(검색 결과/카테고리/평균 유사도%/유리 판례 건수) + 검색 후 결과 테이블(판례/카테고리/요지/유사도/판결/상태)
+- [ ] 프레스 끼임 검색 시 세금·과세 판례가 산재 판례보다 위에 오지 않음. 응답 `outcome`이 `유리 O`/`불리 X`/`애매 △`
+- [ ] 유리 판례 KPI는 근로자 유리(유리 O) 건수. 평균 유리도는 유리 O / 검색 건수. `인용`·`원고 일부 승`·본문 `인정한`은 유리로 잡힘
+- [ ] 판례 검색은 기존 `POST /analysis/api/precedent/simple` 유지, 상세 링크 `/analysis/precedent/{case_id}`
+- [ ] `/analysis/disability` 좌 사이드바 + KPI 자리 + 폼 필드명(`장해_내용` 등) 유지, `POST /analysis/disability`
+- [ ] `/analysis/disability/results` KPI 3(가능성/등급/신뢰도) + 확률 바 + 등급 분포 + 분석 근거
+- [ ] `POST /analysis/api/precedent/simple` 응답에 항상 `saved` 키가 있음. 로그인 검색이면 `saved: true`와 `request_id`, `analysis_requests` 행 생성
+- [ ] 저장 성공 카드에만 「저장된 분석 보기」가 보이고, 실패 시 빨간 안내와 「신청서 작성하기」만 남음
+- [ ] `/analysis/history`에 방금 검색이 보이고, 결과 보기 `/analysis/results/{id}`가 판례 목록을 표시
+- [ ] 계산 → 장해등급 → 판례 → 신청서 스텝퍼가 해당 페이지에 있고, 계산 결과 다음은 `/analysis/disability`
+- [ ] 장해 결과 주 버튼이 「판례 찾아보기」, 보조가 「이 등급으로 다시 계산하기」→ `/compensation/calculator?disability_grade=`
+- [ ] `GET /compensation/calculate?disability_grade=8&from_prediction=true`가 쿼리를 유지한 채 계산기로 302
+- [ ] 분석 후 「신청서 작성하기」가 사고 경위를 채운 `/compensation/apply?q=`로 이동
+- [ ] `pytest test_precedent_rag.py` PASS (저장 페이로드에 `cache_hit` 없음, `precedent_list` 매핑)
+
+## 2026-08-20 홈 Why + Next.js 1단계
+
+- [ ] nginx `location = /`이 Next.js를 타고, HTML에 Next 청크(`/_next/`)가 있다. FastAPI Jinja 폴백은 `:8000`으로만
+- [ ] 소개에 Why 3열·`WHY SANZERO` 대신 가운데 제목 **내 조건으로 받을 금액부터 확인하세요.** 과정 `01–04` 마케팅 그리드 없음
+- [ ] 기능 챕터 3개 지그재그: 계산(휴업·장해·유족) / 분석(장해등급·유사 판례·유리불리) / 신청(신청서·진행 현황·상담). 분석 챕터 링크는 장해등급 예측. 각 챕터 텍스트 링크만
+- [ ] 히어로 CTA: 「내 보상금 확인하기」→ `/compensation/calculator`. 진행 현황·방패 프레임·하단 CTA 바 유지. 하단 「한 장의 양식」도해 없음
+- [ ] 히어로가 warm-paper 위 가운데 방패 프레임 안에 카피를 두고, `못 받은 보상금`과 `있으신가요?`가 단어 중간에서 끊기지 않음. 그리드·7:5 3D 분할 없음
+- [ ] 히어로 방패 더블 헤어라인의 꼭대기가 벌어지거나 잘리지 않고 한 점으로 맞닿아 있다. Next와 Jinja 폴백이 같다
+- [ ] 방패 프레임은 닫힌 패스라 꼭대기·밑점이 벌어지지 않고, 위에서 아래로 좌우가 함께 드러난 뒤 제목 3줄이 순차 입장한다. 자동 회전·스크롤 이동 3D 없음
+- [ ] `GET /api/home` 게스트는 `user: null`과 `claim_progress.home_cta`. 로그인 시 `username`·`user_type`만. 이메일·id·Supabase 키 없음
+- [ ] 홈 HTML에 `@google/model-viewer` 스크립트와 `model-viewer` 태그가 없다. 홈 SSR이 FastAPI `/api/home`에 붙음
+- [ ] `pytest test_claim_progress.py` PASS
+- [ ] 계산기·판례·신청·로그인은 계속 FastAPI+Jinja (`/compensation`, `/analysis`, `/auth`)
+
+## 2026-08-20 홈 기능 홍보 스크롤
+
+- [ ] 기능 챕터 4:3 스테이지에 계산기·판례 검색·신청/현황 실화면 루프(WebP/GIF). `prefers-reduced-motion`이면 JPG 포스터. 추가 accent fill 버튼 없음
+- [ ] 하단 「한 장의 양식으로 짚습니다」도해·서비스 명세 표가 없음. 진행은 히어로 아래 「내 보상금, 지금 어디까지 왔나요」만
+- [ ] 현재 단계 점과 「지금 여기」가 1.4s 점멸. 제출 후면 심사 도장(심사 대기 등)이 점멸. `prefers-reduced-motion`이면 정지
+- [ ] 헤더 로고는 SANZERO 아래 「산업재해 보상 서비스」. 히어로에 「SANZERO · 산재 보상」 eyebrow 없음
+- [ ] 히어로 제목은 「혹시, 못 받은 보상금 있으신가요?」리드: 사고 내용과 임금만 입력하면 예상 보상금을 확인하실 수 있습니다. / 장해등급은 몰라도 됩니다. 출처 없는 평균 금액·소요 시간은 쓰지 않음. CTA는 「내 보상금 확인하기」
+- [ ] 히어로 「내 보상금 확인하기」는 ink(`#191817`) fill, `min-h-14`·`text-lg`. SaaS 파랑 `#2563EB` fill이 아님. 테두리 링이 밖으로 퍼짐. `prefers-reduced-motion`이면 링 정지
+
+## 2026-08-20 산업재해 실황 스크롤
+
+- [ ] 홈 순서가 히어로 → 진행 현황 → 산업재해 실황 → 기능 챕터 → 하단 CTA이며 Next 홈과 Jinja 폴백이 동일함
+- [ ] 실황 수치가 2024년 고용노동부 자료와 일치함: 재해자 142,771명, 전년 대비 +4.4%, 수급자 405,539명, 보험급여 7조 6,333억 원
+- [ ] 2024년이 윤년임을 반영해 하루 평균을 약 390명으로 표시하고, `사람 모양 1개 ≈ 10명`인 39개 단위와 승인일 기준 설명이 함께 보임
+- [ ] 1인당 약 1,882만 원은 `총 지급액 ÷ 수급자 수`인 단순 평균이며, 「내가 받을 보상금은 이 금액과 다릅니다」가 숫자 바로 아래에 있음. 수급자 제목은 `405,539명이`가 한 덩어리로 줄바꿈되고 숫자가 두 번 붙지 않음
+- [ ] 평균임금·휴업기간·장해등급이 개인 보상액의 주요 조건으로 안내되고 다음 「내 조건으로 받을 금액부터 확인하세요」 섹션으로 자연스럽게 이어짐
+- [ ] Next 홈과 Jinja 폴백에서 `판례`(검색 자료)와 `판결`(사건 결론)을 구분하고, CTA는 계산·확인·작성·상담처럼 실행 결과가 분명한 동사를 사용함
+- [ ] 고용노동부 원문 2개, 자료 기준연도, 산재보상 승인 기준이 표시되며 새 창 링크에 접근 가능한 설명이 있음
+- [ ] 실황 도입 배경은 Pexels 공장 사진(촬영자·원본 링크), 중간 전환은 창고 근로자 제공 사진이며 각각 대체 텍스트가 있음
+- [ ] 사진 위 제목·본문은 어두운 scrim 위에서 충분한 대비로 읽히며, 모바일에서도 작업자와 문구가 겹쳐 잘리지 않음
+- [ ] 사진은 미세한 스크롤 이동, 사람 단위 39개는 CSS stagger로 차오르고 지급액 막대는 왼쪽에서 약 780ms `scaleX`로 채워짐. Next와 Jinja 폴백 모두 화면 진입(`is-inview`) 시 동작함
+- [ ] 재해자 142,771명·하루 390명·수급자 405,539명·보험급여 7조 6,333억 원·평균 1,882만 원이 화면 진입 시 0에서 최종값까지 카운트업하며 스크린리더에는 최종값만 읽힘
+- [ ] 하루 평균 `390명`이 제목 크기를 상속해 모바일 21px 이상으로 표시되고, 연도·차트 값·figcaption·수식 라벨·산정 조건·출처가 각 역할별 12–16px 바닥값 아래로 축소되지 않음
+- [ ] 데스크톱과 390px 모바일에서 산식 핵심 값이 각각 최대 28px·최소 18px으로 읽히며, 긴 `7조 6,333억 원`이 잘리거나 겹치지 않음
+- [ ] 히어로 방패 프레임은 장식 SVG(`aria-hidden`)이며 카피가 프레임 밖으로 넘치지 않는다. reduced-motion에서는 프레임·제목이 즉시 완성 상태로 보인다
+- [ ] 320px 모바일에서 산식·긴 숫자·출처가 잘리지 않고 세로로 재배치됨. 도해는 색상만으로 정보를 전달하지 않음
+- [ ] 스크롤 장면 모션은 transform·opacity만 사용하고 `prefers-reduced-motion: reduce`에서는 즉시 정지 상태로 표시됨
+
+## 2026-08-20 홈 모션
+
+- [ ] 히어로 카피가 280ms fade+14px 상승으로 순차 등장. CTA 라벨·href 불변. 탭 시 `scale(0.97)`
+- [ ] 기능 챕터 배지·기능 3줄이 스크롤 진입 시 스태거. 스테이지 호버는 `translateY(-3px)`만, 그림자 없음
+- [ ] 진행 현황의 현재 단계 점이 스케일·opacity로 점멸. 헤더 내비 호버 시 밑줄 `scaleX`
+- [ ] `prefers-reduced-motion: reduce`이면 입장·호버 이동·점멸·프레임 stroke-draw 없음. 본문은 바로 보임
+
+## 2026-08-20 장해등급을 플로우 2단계로
+
+- [ ] 홈·현황·계산기·장해·판례·신청서 스텝퍼가 계산 → 장해등급 → 판례 → 신청서. `/analysis/history`는 단계가 아님
+- [ ] 계산 후 주 CTA가 `/analysis/disability`. 장해가 없으면 「판례부터」로 건너뛸 수 있음
+- [ ] 장해 예측 성공 시 `analysis_requests.analysis_type=disability_prediction`이 저장되고, 홈 다음이 「판례 찾아보기」
+- [ ] 장해 결과 「이 등급으로 다시 계산하기」가 `/compensation/calculator?disability_grade=&from_prediction=true`이고 셀렉트에 등급이 채워짐
+- [ ] `pytest test_claim_progress.py` PASS (4단계 라벨, `predict_grade` / `analyze`)
+
+## 2026-08-20 예측·검색 대기 링
+
+- [ ] `/analysis/disability`에서 예측하기를 누르면 프로그레스 링 오버레이가 바로 뜨고, 가운데 %와 단계 문구가 바뀐다. 값은 화면용이라 실제 모델 진행과 달라도 된다
+- [ ] `/analysis/precedent`에서 검색을 누르면 같은 링이 뜨고, 결과가 나오면 100% 후 사라진다. 예전 스피너 「검색 중...」카드는 없다
+- [ ] `prefers-reduced-motion: reduce`이면 링이 돌지 않고 중간 값에서 기다린다

@@ -1,95 +1,491 @@
 {% extends "base.html" %}
+{% from "components/sanzero_mark.html" import frame as sanzero_frame %}
 
-{% block title %}SANZERO — 정당한 보상, 처음부터{% endblock %}
+{% block title %}SANZERO - 정당한 보상, 처음부터{% endblock %}
+{% block main_class %}pb-0 pt-0{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero-stage { background: #F3F1EC; }
+    .hero-stage-inner { padding-top: 1.25rem; padding-bottom: 5.5rem; }
+    .hero-banner { display: flex; justify-content: center; }
+    .hero-lockup {
+        position: relative;
+        overflow: visible;
+        isolation: isolate;
+        display: grid;
+        grid-template: 1fr / 1fr;
+        width: min(28rem, 92vw);
+        align-items: center;
+        justify-items: center;
+    }
+    .hero-frame,
+    .hero-copy-panel { grid-area: 1 / 1; }
+    .hero-frame {
+        z-index: 0;
+        overflow: visible;
+        width: 100%;
+        color: #191817;
+        pointer-events: none;
+    }
+    .hero-frame-svg { display: block; overflow: visible; width: 100%; height: auto; }
+    .hero-frame-draw { stroke-linejoin: miter; stroke-miterlimit: 12; }
+    @media (prefers-reduced-motion: no-preference) {
+        .hero-frame {
+            clip-path: inset(-12px -12px 100% -12px);
+            animation: hero-frame-reveal 800ms cubic-bezier(0.23, 1, 0.32, 1) both;
+        }
+        .hero-title-line {
+            animation: hero-title-in 560ms 120ms cubic-bezier(0.23, 1, 0.32, 1) both;
+        }
+        .hero-title-line:nth-child(2) { animation-delay: 180ms; }
+        .hero-title-line:nth-child(3) { animation-delay: 240ms; }
+    }
+    @keyframes hero-frame-reveal {
+        from { clip-path: inset(-12px -12px 100% -12px); }
+        to { clip-path: inset(-12px); }
+    }
+    .hero-copy-panel {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        width: 68%;
+        min-width: 0;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 18% 0 24%;
+        text-align: center;
+    }
+    .hero-title {
+        font-size: clamp(1.85rem, 6.2vw, 3.15rem);
+        word-break: keep-all;
+        overflow-wrap: normal;
+    }
+    .hero-title-line { display: block; }
+    @keyframes hero-title-in {
+        from { opacity: 0.35; transform: translateY(0.28em); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-lead {
+        max-width: 16.5rem;
+        font-size: 0.95rem;
+        line-height: 1.65;
+        word-break: keep-all;
+        overflow-wrap: normal;
+    }
+    .hero-support-note {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: 1rem;
+        color: #6E6A64;
+        font-size: 0.8125rem;
+        line-height: 1.6;
+    }
+    .hero-support-note::before {
+        content: "";
+        display: block;
+        width: 1.5rem;
+        height: 1px;
+        margin-bottom: 0.55rem;
+        margin-right: 0;
+        background: #9B9994;
+    }
+    @media (min-width: 640px) {
+        .hero-stage-inner { padding-top: 1.75rem; padding-bottom: 6.25rem; }
+        .hero-lockup { width: min(30rem, 70vw); }
+        .hero-copy-panel { width: 60%; padding: 20% 0 26%; }
+        .hero-lead { font-size: 1.0625rem; }
+        .hero-support-note { font-size: 0.875rem; }
+    }
+    @media (min-width: 1024px) {
+        .hero-stage-inner { padding-top: 2rem; padding-bottom: 6.75rem; }
+        .hero-lockup { width: min(32rem, 36rem); }
+    }
+    .hero-cta:focus-visible { outline: 2px solid #191817; outline-offset: 4px; }
+    .hero-cta {
+        position: relative;
+        isolation: isolate;
+        overflow: visible;
+        background: #191817;
+        color: #FDFDFD;
+        transition: background-color 150ms ease, transform 100ms ease-out;
+    }
+    .hero-cta:hover { background: #0e0d0c; }
+    .hero-cta:active { transform: scale(0.97); }
+    .hero-cta-stamp::before,
+    .hero-cta-stamp::after {
+        content: "";
+        position: absolute;
+        inset: -7px;
+        border: 1px solid #191817;
+        pointer-events: none;
+        opacity: 0;
+        animation: sz-stamp 2.8s cubic-bezier(0.23, 1, 0.32, 1) infinite;
+    }
+    .hero-cta-stamp::after { animation-delay: 1.4s; }
+    @keyframes sz-stamp {
+        0% { transform: scale(1); opacity: 0.4; }
+        65% { transform: scale(1.1); opacity: 0; }
+        100% { transform: scale(1.1); opacity: 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .hero-title-line,
+        .hero-frame {
+            animation: none;
+            opacity: 1;
+            transform: none;
+            clip-path: none;
+        }
+        .hero-cta-stamp::before,
+        .hero-cta-stamp::after { animation: none; }
+        .hero-cta:active { transform: none; }
+    }
+    .feature-stage {
+        aspect-ratio: 4 / 3;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        overflow: hidden;
+        border: 1px solid #CDD4DC;
+        background: #F3F1EC;
+    }
+    .feature-stage picture,
+    .feature-stage img {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+    .feature-stage img {
+        object-fit: cover;
+        object-position: left top;
+    }
+    .feature-badge {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #CDD4DC;
+        padding: 0.28rem 0.55rem;
+        font-family: ui-monospace, monospace;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        color: #6e6a64;
+    }
+    .feature-cap-icon {
+        display: flex;
+        width: 2.75rem;
+        height: 2.75rem;
+        flex-shrink: 0;
+        border: 1px solid #CDD4DC;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-    <section class="mb-16">
-        {% if current_user %}
-        <p class="font-mono text-sm text-muted tracking-wide mb-3">SANZERO</p>
-        <h1 class="text-display mb-4">안녕하세요, {{ current_user.username }}님</h1>
-        {% else %}
-        <p class="font-mono text-sm text-muted tracking-wide mb-3">SANZERO</p>
-        <h1 class="text-display mb-4">산재 보상,<br class="hidden sm:block"> 이제 AI가 함께합니다</h1>
-        {% endif %}
-        <p class="text-muted text-base md:text-lg max-w-xl">AI 기반 산업재해 보상 서비스. 계산부터 판례 분석, 노무사 상담까지 한 흐름으로.</p>
-        {% if not current_user %}
-        <a href="/auth/signup" class="inline-block mt-8 text-lg font-bold text-ink hover:opacity-70">시작하기 →</a>
-        {% endif %}
-    </section>
-
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-20" aria-label="주요 서비스">
-        <article class="border border-border rounded-xl p-6 bg-surface">
-            <p class="font-mono text-xs text-muted mb-8">[01]</p>
-            <h2 class="text-lg font-bold text-ink mb-2">보상금 계산</h2>
-            <p class="text-sm text-muted mb-6 leading-relaxed">2025년 기준 산재 보상금을 확인하고 신청으로 이어갑니다.</p>
-            <a href="/compensation" class="text-sm font-medium text-ink hover:underline underline-offset-4">계산하기 →</a>
-        </article>
-
-        <article class="border border-border rounded-xl p-6 bg-surface">
-            <p class="font-mono text-xs text-muted mb-8">[02]</p>
-            <h2 class="text-lg font-bold text-ink mb-2">AI 판례 분석</h2>
-            <p class="text-sm text-muted mb-6 leading-relaxed">유사 판례를 검색하고 사안의 유불리를 분석합니다.</p>
-            <a href="/analysis/precedent" class="text-sm font-medium text-ink hover:underline underline-offset-4">분석하기 →</a>
-        </article>
-
-        <article class="border border-border rounded-xl p-6 bg-surface">
-            <p class="font-mono text-xs text-muted mb-8">[03]</p>
-            <h2 class="text-lg font-bold text-ink mb-2">노무사 상담</h2>
-            <p class="text-sm text-muted mb-6 leading-relaxed">전문 노무사를 찾고 상담을 예약합니다.</p>
-            <a href="/lawyers/search" class="text-sm font-medium text-ink hover:underline underline-offset-4">상담하기 →</a>
-        </article>
-
-        <article class="border border-border rounded-xl p-6 bg-surface">
-            <p class="font-mono text-xs text-muted mb-8">[04]</p>
-            <h2 class="text-lg font-bold text-ink mb-2">장해등급 예측</h2>
-            <p class="text-sm text-muted mb-6 leading-relaxed">상병 정보를 바탕으로 장해등급을 예측합니다.</p>
-            <a href="/analysis/disability" class="text-sm font-medium text-ink hover:underline underline-offset-4">예측하기 →</a>
-        </article>
-    </section>
-
-    <section>
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-lg font-bold text-ink">최근 활동</h2>
-            {% if current_user %}
-            <a href="/compensation" class="text-sm text-muted hover:text-ink">전체 보기</a>
-            {% endif %}
+<section class="hero-stage">
+    <div class="hero-stage-inner max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="hero-banner">
+            <div class="hero-lockup">
+            <div class="hero-frame text-ink" aria-hidden="true">
+                {{ sanzero_frame() }}
+            </div>
+            <div class="hero-copy-panel">
+                <h1 class="hero-title text-ink font-extrabold tracking-tight leading-[1.08] mb-4">
+                    <span class="hero-title-line">혹시,</span>
+                    <span class="hero-title-line">못 받은 보상금</span>
+                    <span class="hero-title-line">있으신가요?</span>
+                </h1>
+                <p class="hero-lead text-muted leading-relaxed mb-6">
+                    사고 내용과 평균임금을 입력하면<br>
+                    예상 보상금을 확인할 수 있습니다.
+                </p>
+                {% set progress = claim_progress|default({}) %}
+                {% set home_cta = progress.home_cta|default({'label': '내 보상금 확인하기', 'href': '/compensation/calculator'}) %}
+                <a id="home-hero-cta"
+                   href="{{ home_cta.href }}"
+                   class="hero-cta hero-cta-stamp inline-flex items-center justify-center min-h-12 sm:min-h-14 px-8 sm:px-10 py-3 sm:py-4 bg-ink hover:bg-[#0e0d0c] text-surface font-bold text-base sm:text-lg tracking-tight">
+                    {{ home_cta.label }}
+                </a>
+                <p class="hero-support-note">장해등급을 몰라도 시작할 수 있습니다.</p>
+            </div>
+            </div>
         </div>
+    </div>
+</section>
 
-        {% if current_user %}
-        <ul class="divide-y divide-border border-t border-b border-border">
-            <li class="flex items-start gap-4 py-5">
-                <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-status-pending shrink-0" aria-hidden="true"></span>
-                <div class="flex-1 min-w-0">
-                    <p class="font-medium text-ink">보상금 계산</p>
-                    <p class="text-sm text-muted mt-1">예상 보상금을 확인하고 신청을 이어갈 수 있습니다.</p>
-                </div>
-                <span class="text-xs text-muted shrink-0">대기</span>
-            </li>
-            <li class="flex items-start gap-4 py-5">
-                <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-status-review shrink-0" aria-hidden="true"></span>
-                <div class="flex-1 min-w-0">
-                    <p class="font-medium text-ink">유사 판례 검색</p>
-                    <p class="text-sm text-muted mt-1">사안을 입력하면 RAG 기반 분석을 받을 수 있습니다.</p>
-                </div>
-                <span class="text-xs text-muted shrink-0">진행</span>
-            </li>
-            <li class="flex items-start gap-4 py-5">
-                <span class="mt-1.5 h-2.5 w-2.5 rounded-full bg-status-approved shrink-0" aria-hidden="true"></span>
-                <div class="flex-1 min-w-0">
-                    <p class="font-medium text-ink">계정 설정</p>
-                    <p class="text-sm text-muted mt-1">프로필이 준비되었습니다.</p>
-                </div>
-                <span class="text-xs text-muted shrink-0">완료</span>
-            </li>
-        </ul>
-        {% else %}
-        <div class="border border-border rounded-xl px-6 py-10 text-center">
-            <p class="text-ink font-medium mb-2">로그인이 필요합니다</p>
-            <p class="text-sm text-muted mb-6">신청 현황과 최근 활동을 보려면 로그인하세요.</p>
-            <a href="/auth/login" class="text-sm font-bold text-ink hover:underline underline-offset-4">로그인하기 →</a>
+<section class="relative z-20 -mt-14 sm:-mt-16 mb-4 sm:mb-6" aria-labelledby="progress-heading">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white border border-border px-5 sm:px-8 py-6 sm:py-7">
+            {% set progress = claim_progress|default({}) %}
+            {% with progress=progress, track_id='home-claim-progress', show_continue=true, heading_id='progress-heading' %}
+            {% include "components/claim_progress_track.html" %}
+            {% endwith %}
         </div>
-        {% endif %}
-    </section>
-</div>
+    </div>
+</section>
+
+{% include "components/industry_reality.html" %}
+
+<section id="features" class="bg-surface" aria-labelledby="features-heading">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 md:pt-28 pb-20 md:pb-28">
+        <div class="text-center max-w-2xl mx-auto mb-16 md:mb-24">
+            <h2 id="features-heading" class="text-3xl md:text-[40px] font-extrabold tracking-tight text-ink leading-[1.1] mb-4">내 조건으로 받을 금액부터 확인하세요.</h2>
+            <p class="text-muted text-[17px] leading-relaxed">보상금을 계산한 뒤 장해등급과 판례를 확인하고, 신청서까지 이어서 작성할 수 있습니다.</p>
+        </div>
+        <div class="flex flex-col gap-20 md:gap-28 lg:gap-32">
+            <article id="calculate" class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16" aria-labelledby="chapter-calculate">
+                <div class="w-full lg:w-1/2">
+                    <div class="feature-stage">
+                        <picture>
+                            <source srcset="/static/home/feature-calculate.jpg" media="(prefers-reduced-motion: reduce)">
+                            <source srcset="/static/home/feature-calculate.webp" type="image/webp">
+                            <img src="/static/home/feature-calculate.gif" alt="보상금 계산기에서 사고 정보와 평균임금을 입력하는 화면" width="960" height="720">
+                        </picture>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2">
+                    <p class="feature-badge mb-4">계산</p>
+                    <h3 id="chapter-calculate" class="text-2xl md:text-[32px] font-extrabold tracking-tight text-ink leading-tight mb-8">예상 보상금부터 계산합니다</h3>
+                    <ul class="space-y-6">
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">휴업급여</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">평균임금의 70%로 예상 휴업급여를 계산합니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">장해급여</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">장해등급을 모르면 예측 결과로 계산할 수 있습니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">유족급여</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">사망 사고라면 예상 유족급여도 함께 계산합니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="/compensation/calculator" class="inline-flex items-center min-h-11 mt-8 text-sm font-semibold text-accent hover:text-[#1d4ed8] underline-offset-4 hover:underline">보상금 계산하기 →</a>
+                </div>
+            </article>
+            <article id="precedent" class="flex flex-col lg:flex-row-reverse items-center gap-10 lg:gap-16" aria-labelledby="chapter-precedent">
+                <div class="w-full lg:w-1/2">
+                    <div class="feature-stage">
+                        <picture>
+                            <source srcset="/static/home/feature-analyze.jpg" media="(prefers-reduced-motion: reduce)">
+                            <source srcset="/static/home/feature-analyze.webp" type="image/webp">
+                            <img src="/static/home/feature-analyze.gif" alt="유사 판례 검색에 사고 경위를 넣고 판결을 찾는 화면" width="960" height="720">
+                        </picture>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2">
+                    <p class="feature-badge mb-4">분석</p>
+                    <h3 id="chapter-precedent" class="text-2xl md:text-[32px] font-extrabold tracking-tight text-ink leading-tight mb-8">장해등급을 예측하고, 비슷한 판례를 찾습니다</h3>
+                    <ul class="space-y-6">
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">장해등급</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">장해 내용을 바탕으로 예상 등급을 확인하고 장해급여 계산에 반영합니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">유사 판례</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">사고 경위와 장해가 비슷한 판례를 찾습니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">유리·불리</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">판결이 근로자에게 유리했는지 확인합니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="/analysis/disability" class="inline-flex items-center min-h-11 mt-8 text-sm font-semibold text-accent hover:text-[#1d4ed8] underline-offset-4 hover:underline">장해등급 예측하기 →</a>
+                </div>
+            </article>
+            <article id="apply" class="flex flex-col lg:flex-row items-center gap-10 lg:gap-16" aria-labelledby="chapter-apply">
+                <div class="w-full lg:w-1/2">
+                    <div class="feature-stage">
+                        <picture>
+                            <source srcset="/static/home/feature-apply.jpg" media="(prefers-reduced-motion: reduce)">
+                            <source srcset="/static/home/feature-apply.webp" type="image/webp">
+                            <img src="/static/home/feature-apply.gif" alt="산재 보상 신청서와 진행 현황 화면" width="960" height="720">
+                        </picture>
+                    </div>
+                </div>
+                <div class="w-full lg:w-1/2">
+                    <p class="feature-badge mb-4">신청</p>
+                    <h3 id="chapter-apply" class="text-2xl md:text-[32px] font-extrabold tracking-tight text-ink leading-tight mb-8">신청부터 심사 결과까지 확인합니다</h3>
+                    <ul class="space-y-6">
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">신청서</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">계산한 내용을 바탕으로 신청서를 작성합니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">진행 현황</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">접수, 심사, 승인 상태를 한곳에서 확인합니다.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4 items-start text-left">
+                            <span class="feature-cap-icon" aria-hidden="true"></span>
+                            <div>
+                                <h4 class="font-semibold text-ink text-base mb-1">상담</h4>
+                                <p class="text-sm md:text-[15px] text-muted leading-relaxed">혼자 판단하기 어려운 내용은 전문가에게 상담할 수 있습니다.</p>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="/compensation/apply" class="inline-flex items-center min-h-11 mt-8 text-sm font-semibold text-accent hover:text-[#1d4ed8] underline-offset-4 hover:underline">지금 신청서 작성하기 →</a>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="border-t border-[#CDD4DC] bg-[#F3F1EC]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-7 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        {% set progress = claim_progress|default({}) %}
+        {% set next = progress.next_action|default({'label': '내 보상금 확인하기', 'href': '/compensation/calculator'}) %}
+        <p id="home-footer-copy" class="text-sm md:text-[15px] text-ink">
+            {{ progress.summary|default('예상 보상금을 확인한 뒤 장해등급과 판례를 살펴보고 신청서를 작성할 수 있습니다.') }}
+        </p>
+        <a id="home-footer-cta"
+           href="{{ next.href }}"
+           class="home-cta-btn inline-flex items-center justify-center min-h-11 px-5 py-2.5 bg-ink hover:bg-[#0e0d0c] text-surface font-semibold text-sm shrink-0">
+            {{ next.label }}
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+(function () {
+    var root = document.getElementById('home-claim-progress');
+    if (!root || root.getAttribute('data-state') === 'submitted') return;
+    var draft = {};
+    try { draft = JSON.parse(sessionStorage.getItem('sanzero_claim') || '{}'); } catch (err) { return; }
+    var hasCalc = !!(draft.q || draft.date || draft.injury);
+    var hasGrade = !!draft.disability_grade;
+    if (!hasCalc && !hasGrade) return;
+
+    function paintDone(card) {
+        card.setAttribute('data-done', 'true');
+        card.setAttribute('data-current', 'false');
+        card.removeAttribute('aria-current');
+        var dot = card.querySelector('.station-dot');
+        if (dot) {
+            dot.classList.add('is-done');
+            dot.classList.remove('is-current');
+        }
+        var label = card.querySelector('.claim-step-label');
+        var hint = card.querySelector('.claim-step-hint');
+        if (label) {
+            label.classList.remove('text-muted', 'text-accent', 'font-semibold');
+            label.classList.add('font-medium', 'text-ink');
+        }
+        if (hint) {
+            hint.className = 'claim-step-hint mt-1 block text-xs text-muted';
+            hint.textContent = '완료';
+        }
+    }
+    function paintCurrent(card) {
+        card.setAttribute('data-current', 'true');
+        card.setAttribute('aria-current', 'step');
+        var dot = card.querySelector('.station-dot');
+        if (dot) {
+            dot.classList.add('is-current', 'is-done');
+        }
+        var label = card.querySelector('.claim-step-label');
+        var hint = card.querySelector('.claim-step-hint');
+        if (label) {
+            label.classList.remove('text-muted');
+            label.classList.add('font-semibold', 'text-accent');
+        }
+        if (hint) {
+            hint.className = 'claim-step-hint is-now';
+            hint.textContent = '지금 여기';
+        }
+    }
+    function paintRail(after) {
+        root.querySelectorAll('[data-rail-after="' + after + '"]').forEach(function (rail) {
+            rail.classList.remove('bg-[#CDD4DC]');
+            rail.classList.add('bg-accent');
+        });
+    }
+    function setCopy(summary, count, href, continueLabel, footerLabel) {
+        var countEl = document.getElementById('home-claim-progress-count');
+        if (countEl) countEl.textContent = count;
+        var summaryEl = document.getElementById('home-claim-progress-summary');
+        if (summaryEl) summaryEl.textContent = summary;
+        var footerCopy = document.getElementById('home-footer-copy');
+        if (footerCopy) footerCopy.textContent = summary;
+        var wrap = document.getElementById('home-claim-progress-continue-wrap');
+        var cont = document.getElementById('home-claim-progress-continue');
+        if (wrap) wrap.classList.remove('hidden');
+        if (cont) {
+            cont.setAttribute('href', href);
+            cont.textContent = continueLabel;
+        }
+        var footer = document.getElementById('home-footer-cta');
+        if (footer) {
+            footer.setAttribute('href', href);
+            footer.textContent = footerLabel;
+        }
+    }
+
+    if (hasCalc || hasGrade) {
+        root.querySelectorAll('[data-step="1"]').forEach(paintDone);
+        paintRail('1');
+    }
+    if (hasGrade) {
+        root.querySelectorAll('[data-step="2"]').forEach(paintDone);
+        paintRail('2');
+    }
+
+    var current = Number(root.getAttribute('data-current') || '1');
+    if (hasGrade && current <= 2) {
+        root.querySelectorAll('[data-step="3"]').forEach(paintCurrent);
+        root.setAttribute('data-current', '3');
+        root.setAttribute('data-completed', '2');
+        root.style.setProperty('--docket-fill', '66%');
+        setCopy(
+            '예상 장해등급을 확인했습니다. 비슷한 사고의 판례를 찾아보세요.',
+            '2/4 완료',
+            '/analysis/precedent',
+            '비슷한 판례 찾아보기 →',
+            '비슷한 판례 찾아보기'
+        );
+        return;
+    }
+    if (hasCalc && current === 1) {
+        root.querySelectorAll('[data-step="2"]').forEach(paintCurrent);
+        root.setAttribute('data-current', '2');
+        root.setAttribute('data-completed', '1');
+        root.style.setProperty('--docket-fill', '33%');
+        setCopy(
+            '예상 보상금을 계산했습니다. 이제 예상 장해등급을 확인하세요.',
+            '1/4 완료',
+            '/analysis/disability',
+            '장해등급 예측하기 →',
+            '장해등급 예측하기'
+        );
+    }
+})();
+</script>
 {% endblock %}
