@@ -1,6 +1,7 @@
 <script setup>
 const factoryPhoto = "/static/home/industry-worker-factory.jpg";
 const warehousePhoto = "/static/home/industry-worker-warehouse.jpg";
+const dailyPeopleUnits = Array.from({ length: 39 }, (_, index) => index + 1);
 const formatEokWon = (value) => {
   const jo = Math.floor(value / 10_000);
   const eok = value % 10_000;
@@ -20,24 +21,47 @@ const sources = [
 ];
 
 const sectionRef = ref(null);
-const photoY = ref(0);
+const photoRef = ref(null);
 const reduce = useReducedMotion();
 
 onMounted(() => {
-  const onScroll = () => {
-    if (reduce.value || !sectionRef.value) {
-      photoY.value = 0;
+  const photo = photoRef.value;
+  const section = sectionRef.value;
+  if (!photo || !section) return;
+
+  const supportsViewTimeline =
+    typeof CSS !== "undefined" &&
+    typeof CSS.supports === "function" &&
+    CSS.supports("animation-timeline: view()");
+
+  if (reduce.value || supportsViewTimeline) return;
+
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    if (reduce.value) {
+      photo.style.removeProperty("--industry-photo-y");
       return;
     }
-    const rect = sectionRef.value.getBoundingClientRect();
-    const span = window.innerHeight + rect.height;
+    const rect = section.getBoundingClientRect();
+    const span = window.innerHeight + rect.height || 1;
     const progress = Math.min(1, Math.max(0, (window.innerHeight - rect.top) / span));
-    const mapped = Math.min(1, progress / 0.45);
-    photoY.value = -28 + mapped * 56;
+    const t = Math.min(1, progress / 0.45);
+    photo.style.setProperty("--industry-photo-y", `${-28 + t * 56}px`);
   };
-  onScroll();
+  const onScroll = () => {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(update);
+  };
+
+  update();
   window.addEventListener("scroll", onScroll, { passive: true });
-  onBeforeUnmount(() => window.removeEventListener("scroll", onScroll));
+  window.addEventListener("resize", onScroll, { passive: true });
+  onBeforeUnmount(() => {
+    window.removeEventListener("scroll", onScroll);
+    window.removeEventListener("resize", onScroll);
+  });
 });
 </script>
 
@@ -50,12 +74,12 @@ onMounted(() => {
   >
     <div class="industry-photo-hero">
       <img
+        ref="photoRef"
         :src="factoryPhoto"
         alt="안전모를 쓰고 산업 현장에서 작업 중인 근로자"
-        class="industry-photo-hero-image industry-motion"
+        class="industry-photo-hero-image"
         loading="lazy"
         decoding="async"
-        :style="reduce ? undefined : { transform: `translateY(${photoY}px) scale(1.06)` }"
       />
       <div class="industry-photo-hero-scrim" aria-hidden="true" />
       <div class="industry-photo-hero-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

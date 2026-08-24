@@ -29,6 +29,13 @@ def test_web_package_is_nuxt():
     assert "next" not in pkg.get("devDependencies", {})
 
 
+def test_industry_photo_has_scroll_pan():
+    css = (ROOT / "web" / "assets" / "css" / "globals.css").read_text(encoding="utf-8")
+    assert "@keyframes industry-photo-pan" in css
+    assert "animation-timeline: --industry-reality" in css
+    assert "translate3d(0, var(--industry-photo-y, -28px), 0) scale(1.06)" in css
+
+
 def test_nginx_sends_home_and_assets_to_nuxt():
     conf = (ROOT / "nginx.conf").read_text(encoding="utf-8")
     assert "location /_nuxt/" in conf

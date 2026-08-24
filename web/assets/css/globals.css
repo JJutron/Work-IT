@@ -675,6 +675,44 @@ body {
   object-position: center 48%;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .industry-reality {
+    view-timeline-name: --industry-reality;
+    view-timeline-axis: block;
+  }
+
+  .industry-photo-hero-image {
+    will-change: transform;
+    transform: translate3d(0, var(--industry-photo-y, -28px), 0) scale(1.06);
+  }
+
+  @supports (animation-timeline: view()) {
+    .industry-photo-hero-image {
+      animation: industry-photo-pan 1ms linear both;
+      animation-timeline: --industry-reality;
+      animation-range: cover 0% cover 45%;
+    }
+  }
+
+  .industry-photo-interlude img {
+    transform: scale(1.05);
+    transition: transform 700ms var(--ease-out-quint);
+  }
+
+  .industry-photo-interlude.is-revealed img {
+    transform: scale(1);
+  }
+}
+
+@keyframes industry-photo-pan {
+  from {
+    transform: translate3d(0, -28px, 0) scale(1.06);
+  }
+  to {
+    transform: translate3d(0, 28px, 0) scale(1.06);
+  }
+}
+
 .industry-photo-hero-scrim {
   position: absolute;
   inset: 0;
@@ -1230,6 +1268,13 @@ body {
   .industry-motion {
     opacity: 1 !important;
     transform: none !important;
+  }
+
+  .industry-photo-hero-image,
+  .industry-photo-interlude img {
+    animation: none !important;
+    transform: none !important;
+    will-change: auto;
   }
 
   .industry-people-field > span,

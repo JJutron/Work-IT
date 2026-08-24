@@ -44,9 +44,9 @@
 - 로그인 CSRF도 같다. 쿠키와 hidden이 어긋나면 로그인 화면에 「보안 토큰이 유효하지 않습니다.」 계산 스냅샷은 `claim_drafts` (SQL: `scripts/add_claim_drafts.sql`). 없으면 저장만 실패하고 계산 결과는 그대로 내려간다. 홈 진행은 sessionStorage로 칠하지 않는다.
 
 ### 홈 `/`가 Jinja로 보이거나 Nuxt 청크 404
-- **원인**: nginx가 `location = /`·`/_nuxt/`를 Nuxt `:3000`으로 안 보냄. `sanzero-nuxt`가 없거나 아직 listen 전
-- **확인**: `http://localhost:8000/`는 FastAPI 폴백(Jinja). 포트 80이 Nuxt 홈
-- **해결**: `docker compose up --build -d`로 nginx·nuxt·web을 같이 올림. Docker 명령은 사용자가 실행
+- **원인**: nginx가 `location = /`·`/_nuxt/`를 Nuxt `:3000`으로 안 보냄. 예전 `sanzero-next`가 포트를 잡고 있거나 `sanzero-nuxt`가 아직 listen 전
+- **확인**: `http://localhost:8000/`는 FastAPI 폴백(Jinja). 포트 80이 Nuxt 홈. HTML에 `/_nuxt/`가 있고 `/_next/`는 없어야 함
+- **해결**: `docker compose down --remove-orphans` 후 `docker compose up --build -d`. 예전 `next` 서비스 컨테이너가 남아 있으면 3000을 그대로 점유한다. Docker 명령은 사용자가 실행
 
 ### localhost:3000에서 방패 GLB 404 · 홈 API가 비로그인만
 - **원인**: GLB는 FastAPI `/static/models/`에만 있다. Nuxt `public`에 복사하지 않음. 예전 SSR 기본값이 `http://web:8000`이라 호스트 `nuxt dev`는 `/api/home`에 못 붙고 게스트 폴백만 씀
