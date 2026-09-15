@@ -23,9 +23,6 @@
   <a href="https://www.docker.com/"><img alt="Docker Compose" src="https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white" /></a>
 </p>
 
-<p align="center">
-  SKALA / AI 융합 캡스톤 디자인
-</p>
 
 <!-- 배포·발표 링크가 생기면 아래를 채운다.
 <p align="center">
