@@ -18,6 +18,17 @@ def test_login_page_sets_matching_csrf_cookie_and_field():
     assert f'name="csrf_token" value="{cookie}"' in response.text
 
 
+def test_login_page_does_not_overwrite_route_csrf_cookie():
+    client = TestClient(app)
+    response = client.get("/auth/login")
+    set_cookie_headers = [
+        value
+        for key, value in response.headers.multi_items()
+        if key.lower() == "set-cookie" and value.lower().startswith("csrf_token=")
+    ]
+    assert len(set_cookie_headers) == 1
+
+
 def test_login_rejects_mismatched_csrf():
     client = TestClient(app)
     page = client.get("/auth/login")
