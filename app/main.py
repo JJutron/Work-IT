@@ -66,23 +66,29 @@ app.add_middleware(
 # CSRF 보호 미들웨어 추가
 from app.utils.security import security, set_csrf_cookie
 
+def _response_sets_csrf_cookie(response) -> bool:
+    for key, value in getattr(response, "raw_headers", []):
+        if key.lower() == b"set-cookie" and value.lower().startswith(b"csrf_token="):
+            return True
+    return False
+
+
 @app.middleware("http")
 async def csrf_token_middleware(request: Request, call_next):
     """CSRF 토큰 자동 설정 미들웨어"""
-    # 기존 CSRF 토큰 확인
     existing_token = request.cookies.get("csrf_token")
-
-    # 요청 처리
     response = await call_next(request)
 
-    # HTML 응답이고 CSRF 토큰이 없는 경우에만 새 토큰 생성
     content_type = response.headers.get("content-type", "")
-    if "text/html" in content_type and not existing_token:
-        csrf_token = security.generate_csrf_token()
-        set_csrf_cookie(response, csrf_token)
-        # 생성된 토큰을 응답 헤더에도 추가 (디버깅용)
-        response.headers["X-CSRF-Token"] = csrf_token
+    if "text/html" not in content_type or existing_token:
+        return response
+    # 로그인 페이지가 이미 폼과 같은 값으로 심은 쿠키를 덮지 않는다.
+    if _response_sets_csrf_cookie(response):
+        return response
 
+    csrf_token = security.generate_csrf_token()
+    set_csrf_cookie(response, csrf_token)
+    response.headers["X-CSRF-Token"] = csrf_token
     return response
 
 # TrustedHostMiddleware - 프로덕션 환경에서는 실제 도메인으로 제한

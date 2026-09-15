@@ -6,6 +6,14 @@
 - **기술 스택**: Python 3.13, FastAPI, Nuxt 3 홈(`/`), Jinja2 실무, Supabase, HTMX, Tailwind CSS
 - **현재 상태**: 핵심 기능은 동작. 홈은 Nuxt로 이식 중. 계산기·판례·신청은 Jinja.
 
+## 2026-09-15 기억할 사항
+- GitHub README는 MOODITOR-fe처럼 기능 GIF를 넣는다. 장해등급은 `app/static/home/feature-disability.gif`. 런타임 그림은 `docs/readme/architecture.drawio` → `architecture.png`. 로고는 `docs/readme/logos/`와 산재ON 마크 `docs/readme/sanzero-mark.svg`. 재생성은 `python3 docs/readme/build_architecture_drawio.py`.
+- 로그인 GET이 CSRF 쿠키를 한 번 더 덮으면 폼 값과 어긋난다. `csrf_token_middleware`는 라우트가 이미 `Set-Cookie: csrf_token`을 심은 응답을 덮지 않는다. `pytest test_login_csrf.py`.
+- Compose `web`에 8.8.8.8을 고정하면 컨테이너가 호스트 이름을 못 푸는 경우가 있다. DNS는 Docker 기본값을 쓴다.
+
+## 2026-09-11 기억할 사항
+- 다른 에이전트용 운영 브리핑은 루트 `AGENTS.md`. 사람용 소개·자기소개가 아니라 제약·경로·함정이다. `CLAUDE.md`·`README.md`에서 이 파일을 가리킨다.
+
 ## 2026-08-24 기억할 사항
 - 공식 서비스명 **산재ON**. README·ARCHITECTURE에 유스케이스·런타임·스택 다이어그램을 고정했다. LICENSE는 All Rights Reserved.
 - 오픈소스 커뮤니티(이슈 초대, CONTRIBUTING)를 만들지 않는다.
@@ -13,6 +21,7 @@
 - 로그인 CSRF를 다시 켰다. `pytest test_login_csrf.py`.
 - Nuxt SSR은 `FASTAPI_INTERNAL_URL` 하나만 사용한다.
 - **홈은 Nuxt 3(Vue 3, JS).** 화면·CSS·`GET /api/home`은 유지. Nginx는 `location /_nuxt/`. Vite SPA는 쓰지 않는다. 계산기 Vue는 4주 기본 범위가 아님.
+- 홈 카피는 Nuxt·Jinja 폴백을 같이 고친다. 히어로 리드는 「예상 보상금이 나옵니다」, 보조는 「장해등급은 몰라도 됩니다」. 게스트 `claim_progress.summary`는 서버 `_SUMMARIES.start`와 같다.
 
 ## 📊 시스템 구현 현황
 
